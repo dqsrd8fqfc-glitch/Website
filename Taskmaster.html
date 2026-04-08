@@ -2656,7 +2656,7 @@
       if (map && !map.imageData) map.imageData = DEFAULT_MAIN_MAP_IMAGE;
       mapImageData = map ? (map.imageData || DEFAULT_MAIN_MAP_IMAGE) : DEFAULT_MAIN_MAP_IMAGE;
       if (mapImageData) {
-        els.mapImg.onload = () => {
+        const showBoard = () => {
           els.mapC.style.minHeight = '0';
           els.mapImg.style.display = 'block';
           els.bannerMask.style.display = 'block';
@@ -2667,7 +2667,9 @@
           renderAllTokens();
           renderSpotlight();
         };
+        els.mapImg.onload = showBoard;
         els.mapImg.src = mapImageData;
+        if (els.mapImg.complete && els.mapImg.naturalWidth > 0) showBoard();
       } else {
         els.mapC.style.minHeight = '';
         els.mapImg.removeAttribute('src');
