@@ -2050,13 +2050,7 @@
       { icon:'💥', name:'Chaos Finish', mode:'drink', text:'End loudly and hope the Taskmaster calls it genius.' }
     ];
     const DEFAULT_HOTSPOTS = plainClone(HOTSPOTS);
-    const DEFAULT_MAIN_MAP_IMAGE = (() => {
-      const path = window.location.pathname || '/';
-      const base = path.endsWith('.html')
-        ? path.slice(0, path.lastIndexOf('/') + 1)
-        : (path.endsWith('/') ? path : path + '/');
-      return base + 'Image.png';
-    })();
+    const DEFAULT_MAIN_MAP_IMAGE = new URL('nEW.png', window.location.href).href;
     const TYPE_TO_DECK = {
       drink:'DRINKS',
       nominate:'NOMS',
