@@ -21,7 +21,7 @@
       margin:0;
       font-family:"Avenir Next","Gill Sans","Trebuchet MS",sans-serif;
       color:var(--text);
-      background:#11090f;
+      background:#751627;
     }
     button,input,textarea,select{font:inherit;max-width:100%}
     button{
@@ -146,8 +146,59 @@
       font-size:18px;
       line-height:1;
     }
+    .mapGhostBtn{
+      position:absolute;
+      top:8px;
+      right:8px;
+      z-index:8;
+      opacity:.01;
+      background:transparent;
+      border-color:transparent;
+      box-shadow:none;
+    }
+    .mapGhostBtn.left{
+      left:8px;
+      right:auto;
+    }
+    .mapGhostBtn:hover,
+    .mapGhostBtn:focus-visible,
+    body.taskLayoutEdit .mapGhostBtn{
+      opacity:.18;
+      background:rgba(255,218,140,.08);
+      border-color:rgba(245,200,66,.18);
+    }
     .mapToolsPanel{
       margin-top:14px;
+    }
+    .panelHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px 8px;
+    }
+    .panelHead h2{
+      margin:0;
+    }
+    .miniIconBtn{
+      width:28px;
+      min-width:28px;
+      height:28px;
+      padding:0;
+      border-radius:999px;
+      font-size:14px;
+      line-height:1;
+      display:grid;
+      place-items:center;
+    }
+    .leaderboardEditor{
+      display:none;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid rgba(245,200,66,.12);
+    }
+    .leaderboardEditor.open{
+      display:block;
     }
     .mapImageActions{
       display:flex;
@@ -234,10 +285,6 @@
       overflow:auto;
       padding-right:2px;
     }
-    .notesArea{
-      min-height:120px;
-      resize:vertical;
-    }
     .panel{
       background:linear-gradient(180deg, rgba(111,19,37,.96), rgba(25,12,22,.96));
       border:1px solid var(--border);
@@ -295,7 +342,7 @@
       position:absolute;
       inset:0 0 auto 0;
       height:108px;
-      background:linear-gradient(180deg, rgba(19,12,18,.95), rgba(19,12,18,.65), transparent);
+      background:transparent;
       pointer-events:none;
       z-index:2;
     }
@@ -321,6 +368,13 @@
       inset:0;
     }
     #hotspotLayer{z-index:3}
+    #hotspotEditor{
+      position:absolute;
+      inset:18% 8% 8% 8%;
+      z-index:3;
+      pointer-events:none;
+      overflow:visible;
+    }
     #annotationLayer{z-index:4;pointer-events:none}
     #tokenLayer{z-index:5;pointer-events:none}
     #spotlightLayer{z-index:6;pointer-events:none}
@@ -809,6 +863,13 @@
     #mcontent.bossMode{
       width:min(1180px,100%);
       max-height:94vh;
+    }
+    #mcontent.taskMode{
+      width:min(70vw,1100px);
+      max-width:70vw;
+      height:min(70vh,760px);
+      max-height:70vh;
+      padding:24px 28px;
     }
     .modalCard h3,.modalCard h4{color:var(--gold);margin:.2em 0}
     .modalCard p{line-height:1.45}
@@ -1581,21 +1642,25 @@
       color:var(--muted);
     }
     .taskCardGrid{
-      display:grid;
-      gap:10px;
+      position:relative;
+      height:100%;
     }
     .taskColumnGrid{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;
-      align-items:start;
+      position:relative;
+      height:100%;
     }
     .taskColumn{
+      position:relative;
+      position:absolute;
       display:grid;
-      gap:10px;
+      gap:6px;
+      align-content:start;
       min-width:0;
     }
     .taskColumnHead{
+      display:none;
+      align-items:center;
+      justify-content:center;
       padding:10px 12px;
       border:1px solid rgba(245,200,66,.2);
       border-radius:14px;
@@ -1607,29 +1672,74 @@
       text-transform:uppercase;
       text-align:center;
       box-shadow:var(--shadow);
+      cursor:grab;
+      pointer-events:auto;
+      touch-action:none;
+    }
+    .taskColumn.dragging .taskColumnHead{cursor:grabbing}
+    .taskColumnResize{
+      position:absolute;
+      top:0;
+      right:-10px;
+      width:18px;
+      height:100%;
+      cursor:ew-resize;
+      pointer-events:auto;
+      touch-action:none;
+      z-index:2;
+    }
+    .taskColumnResize::after{
+      content:'';
+      position:absolute;
+      top:12px;
+      bottom:12px;
+      right:7px;
+      width:4px;
+      border-radius:999px;
+      background:rgba(245,210,79,.42);
+      box-shadow:0 0 0 1px rgba(0,0,0,.16);
+    }
+    .taskColumn.dragging .taskColumnResize::after{
+      background:rgba(245,210,79,.72);
+    }
+    body.taskLayoutEdit .taskColumnHead{
+      display:flex;
+    }
+    body.taskLayoutEdit .taskColumnResize{
+      display:block;
+    }
+    body:not(.taskLayoutEdit) .taskColumnResize{
+      display:none;
+    }
+    body.taskLayoutEdit .taskLaunchCard{
+      pointer-events:none;
     }
     .taskLaunchCard{
-      border:1px solid rgba(245,200,66,.18);
-      border-radius:16px;
-      background:rgba(26,13,8,.86);
-      padding:14px;
+      border:1px solid rgba(102,57,18,.38);
+      border-radius:12px;
+      background:linear-gradient(180deg, rgba(128,77,33,.96), rgba(92,52,20,.96));
+      padding:7px 10px;
       text-align:left;
       display:grid;
+      grid-template-columns:auto 1fr;
       gap:8px;
-      box-shadow:var(--shadow);
+      align-items:center;
+      box-shadow:0 10px 22px rgba(0,0,0,.2);
+      pointer-events:auto;
     }
     .taskLaunchCard strong{
-      font-size:16px;
-      color:var(--text);
-    }
-    .taskLaunchCard p{
-      margin:0;
-      color:var(--muted);
       font-size:13px;
-      line-height:1.45;
+      color:#f7e7c0;
+      line-height:1.05;
     }
-    .taskLaunchCard .tiny{
-      color:var(--gold);
+    .taskLaunchCard .emoji{
+      font-size:20px;
+      line-height:1;
+    }
+    .taskLaunchCard.completed{
+      opacity:.58;
+      filter:grayscale(1);
+      background:linear-gradient(180deg, rgba(112,103,90,.92), rgba(86,78,68,.92));
     }
     .taskColumnEmpty{
       border:1px dashed rgba(245,200,66,.2);
@@ -1638,7 +1748,8 @@
       color:var(--muted);
       font-size:13px;
       text-align:center;
-      background:rgba(26,13,8,.56);
+      background:rgba(26,13,8,.28);
+      pointer-events:auto;
     }
     .taskModalHead{
       display:flex;
@@ -1650,12 +1761,34 @@
     .taskModalBody p{
       margin:0;
     }
+    .taskModalBody{
+      display:grid;
+      gap:22px;
+      align-content:center;
+      justify-items:center;
+      text-align:center;
+      min-height:calc(70vh - 170px);
+    }
+    .taskModalEmoji{
+      font-size:72px;
+      line-height:1;
+    }
+    .taskModalTitle{
+      font-size:clamp(40px,5.8vw,72px);
+      line-height:1.02;
+      color:var(--gold);
+    }
+    .taskModalText{
+      font-size:clamp(28px,3.6vw,44px);
+      line-height:1.3;
+      color:#fff5dc;
+      white-space:pre-wrap;
+    }
     .taskModalClose{
       min-width:40px;
       padding:8px 10px;
       font-size:18px;
       line-height:1;
-    }
     }
     .adminBtns{display:flex;gap:8px;flex-wrap:wrap}
     .hidden{display:none !important}
@@ -1768,7 +1901,21 @@
       .deckRow,
       .logRow{grid-template-columns:1fr}
       .sidebar{padding-right:0}
-      .taskColumnGrid{grid-template-columns:1fr}
+      #hotspotEditor{
+        position:static;
+        inset:auto;
+        pointer-events:auto;
+        overflow:visible;
+      }
+      .taskCardGrid{height:auto}
+      .taskColumnGrid{display:grid;grid-template-columns:1fr;gap:12px;height:auto}
+      .taskColumn{
+        position:static;
+        width:100% !important;
+        left:auto !important;
+        top:auto !important;
+      }
+      .taskColumnHead{display:none}
     }
     @media (max-width: 640px){
       .page{padding:12px}
@@ -1792,9 +1939,12 @@
     <div class="layout">
       <div class="mapCol">
         <div id="mapC">
+          <button id="cardEditBtn" class="iconBtn mapGhostBtn left" type="button" title="Edit cards" aria-label="Edit cards">✏️</button>
+          <button id="taskLayoutBtn" class="iconBtn mapGhostBtn" type="button" title="Arrange task columns" aria-label="Arrange task columns">↔</button>
           <img id="mapImg" alt="Taskmaster board" src="https://dqsrd8fqfc-glitch.github.io/Website/Image.png">
           <div id="bannerMask"></div>
           <div id="hotspotLayer"></div>
+          <div id="hotspotEditor"></div>
           <div id="annotationLayer"></div>
           <div id="tokenLayer"></div>
           <div id="loadOverlay">
@@ -1803,36 +1953,6 @@
             <input id="mapFile" type="file" accept="image/*" class="hidden">
           </div>
         </div>
-        <details class="panel mapToolsPanel" open>
-          <summary>Tasks</summary>
-          <div class="panelBody">
-            <div id="hotspotEditor"></div>
-          </div>
-        </details>
-        <details class="panel mapToolsPanel" open>
-          <summary>Teams</summary>
-          <div class="panelBody">
-            <div class="teamAddWrap">
-              <details id="playerAdder" class="playerAdder">
-                <summary>+ New Team</summary>
-                <div class="playerAdderBody">
-                  <div class="playerAdd">
-                    <input id="playerName" placeholder="Add a team">
-                    <button id="addPlayerBtn" type="button">Add</button>
-                  </div>
-                  <div id="colorRow" class="colorRow"></div>
-                </div>
-              </details>
-            </div>
-            <div id="teamManagerList" class="teamManagerList"></div>
-          </div>
-        </details>
-        <details class="panel mapToolsPanel">
-          <summary>Notes</summary>
-          <div class="panelBody">
-            <textarea id="notesArea" class="notesArea" placeholder="Ideas, reminders, rough thoughts..."></textarea>
-          </div>
-        </details>
       </div>
       <aside class="sidebar">
         <div class="sidebarTabs">
@@ -1842,9 +1962,27 @@
 
         <div id="sessionTab" class="sideTab active">
           <section class="panel">
-            <h2>Leaderboard</h2>
             <div class="panelBody">
+              <div class="panelHead">
+                <h2>Leaderboard</h2>
+                <button id="teamEditToggleBtn" class="miniIconBtn" type="button" title="Edit teams" aria-label="Edit teams">✏️</button>
+              </div>
               <div id="playerList" class="plist"></div>
+              <div id="leaderboardEditor" class="leaderboardEditor">
+                <div class="teamAddWrap">
+                  <details id="playerAdder" class="playerAdder">
+                    <summary>+ New Team</summary>
+                    <div class="playerAdderBody">
+                      <div class="playerAdd">
+                        <input id="playerName" placeholder="Add a team">
+                        <button id="addPlayerBtn" type="button">Add</button>
+                      </div>
+                      <div id="colorRow" class="colorRow"></div>
+                    </div>
+                  </details>
+                </div>
+                <div id="teamManagerList" class="teamManagerList"></div>
+              </div>
             </div>
           </section>
 
@@ -2187,6 +2325,7 @@
       body:document.body,
       pubNameInput:document.getElementById('pubNameInput'),
       mapC:document.getElementById('mapC'),
+      cardEditBtn:document.getElementById('cardEditBtn'),
       mapImg:document.getElementById('mapImg'),
       bannerMask:document.getElementById('bannerMask'),
       hotspotLayer:document.getElementById('hotspotLayer'),
@@ -2207,6 +2346,8 @@
       addPlayerBtn:document.getElementById('addPlayerBtn'),
       colorRow:document.getElementById('colorRow'),
       playerList:document.getElementById('playerList'),
+      teamEditToggleBtn:document.getElementById('teamEditToggleBtn'),
+      leaderboardEditor:document.getElementById('leaderboardEditor'),
       playerAdder:document.getElementById('playerAdder'),
       teamManagerList:document.getElementById('teamManagerList'),
       hotspotEditor:document.getElementById('hotspotEditor'),
@@ -2218,7 +2359,6 @@
       undoBtn:document.getElementById('undoBtn'),
       redoBtn:document.getElementById('redoBtn'),
       playerViewBtn:document.getElementById('playerViewBtn'),
-      notesArea:document.getElementById('notesArea'),
       effectsList:document.getElementById('effectsList'),
       logList:document.getElementById('logList'),
       moverlay:document.getElementById('moverlay'),
@@ -2232,6 +2372,7 @@
       importFile:document.getElementById('importFile'),
       saveFlash:document.getElementById('saveFlash'),
       manualSaveBtn:document.getElementById('manualSaveBtn'),
+      taskLayoutBtn:document.getElementById('taskLayoutBtn'),
       emojiPicker:document.getElementById('emojiPicker'),
       runModeBtn:document.getElementById('runModeBtn'),
       editModeBtn:document.getElementById('editModeBtn'),
@@ -2263,7 +2404,10 @@
     let hotspotCreateMode = false;
     let selectedAnnotationId = '';
     let playerDisplay = false;
+    let taskLayoutEdit = false;
+    let teamEditOpen = false;
     let spotlight = { type:'', id:'' };
+    let taskColumnDrag = null;
     let actionHistory = [];
     let redoHistory = [];
     let saveSuspended = false;
@@ -2381,6 +2525,39 @@
       if (left <= 34) return 'physical';
       if (left <= 67) return 'creative';
       return 'mental';
+    }
+    function defaultTaskColumns(){
+      return {
+        physical:{ x:2, y:0, w:23 },
+        creative:{ x:38.5, y:0, w:23 },
+        mental:{ x:75, y:0, w:23 }
+      };
+    }
+    function ensureTaskColumns(map){
+      if (!map) return defaultTaskColumns();
+      const base = defaultTaskColumns();
+      const saved = map.taskColumns && typeof map.taskColumns === 'object' ? map.taskColumns : {};
+      map.taskColumns = {
+        physical:{
+          x:Number(saved.physical && saved.physical.x),
+          y:Number(saved.physical && saved.physical.y) || 0,
+          w:clamp(Number(saved.physical && saved.physical.w) || 23, 12, 40)
+        },
+        creative:{
+          x:Number(saved.creative && saved.creative.x),
+          y:Number(saved.creative && saved.creative.y) || 0,
+          w:clamp(Number(saved.creative && saved.creative.w) || 23, 12, 40)
+        },
+        mental:{
+          x:Number(saved.mental && saved.mental.x),
+          y:Number(saved.mental && saved.mental.y) || 0,
+          w:clamp(Number(saved.mental && saved.mental.w) || 23, 12, 40)
+        }
+      };
+      if (!Number.isFinite(map.taskColumns.physical.x)) map.taskColumns.physical.x = 2;
+      if (!Number.isFinite(map.taskColumns.creative.x)) map.taskColumns.creative.x = 38.5;
+      if (!Number.isFinite(map.taskColumns.mental.x)) map.taskColumns.mental.x = 75;
+      return map.taskColumns || base;
     }
     function normalizeHotspot(spot){
       if (typeof spot.hidden !== 'boolean') spot.hidden = false;
@@ -2742,6 +2919,7 @@
         name:mapName,
         imageData:mapName === 'Studio Floor' ? DEFAULT_MAIN_MAP_IMAGE : '',
         hotspots:cloneDefaultHotspots(),
+        taskColumns:defaultTaskColumns(),
         annotations:[],
         playerTokPos:{},
         npcTokPos:{}
@@ -2769,7 +2947,10 @@
     function ensureMapSelection(){
       if (!maps.length) maps.push(makeDefaultMap('Studio Floor'));
       if (!maps.some((m) => m.id === activeMapId)) activeMapId = maps[0].id;
-      maps.forEach(syncDefaultHotspots);
+      maps.forEach((map) => {
+        syncDefaultHotspots(map);
+        ensureTaskColumns(map);
+      });
     }
     function saveActiveMapState(){
       const map = currentMap();
@@ -2855,8 +3036,19 @@
       els.sessionTab.classList.toggle('active', sidebarTab === 'session');
       els.adminSideTab.classList.toggle('active', sidebarTab === 'admin');
     }
-    function renderNotes(){
-      if (els.notesArea) els.notesArea.value = sessionState.notes || '';
+    function renderTaskLayoutButton(){
+      if (!els.taskLayoutBtn) return;
+      els.body.classList.toggle('taskLayoutEdit', taskLayoutEdit);
+      els.taskLayoutBtn.textContent = taskLayoutEdit ? '🔓' : '↔';
+      els.taskLayoutBtn.title = taskLayoutEdit ? 'Lock task columns' : 'Arrange task columns';
+      els.taskLayoutBtn.setAttribute('aria-label', els.taskLayoutBtn.title);
+    }
+    function renderTeamEditorToggle(){
+      if (!els.leaderboardEditor || !els.teamEditToggleBtn) return;
+      els.leaderboardEditor.classList.toggle('open', teamEditOpen);
+      els.teamEditToggleBtn.textContent = '✏️';
+      els.teamEditToggleBtn.title = teamEditOpen ? 'Hide team editor' : 'Edit teams';
+      els.teamEditToggleBtn.setAttribute('aria-label', els.teamEditToggleBtn.title);
     }
     function resetSessionBits(){
       pubName = 'Taskmaster';
@@ -3185,7 +3377,6 @@
       renderLog();
       renderInitiative();
       renderSidebarTab();
-      renderNotes();
       if (els.adminOverlay.style.display === 'flex') renderAdmin();
       syncUndoRedo();
     }
@@ -3221,7 +3412,8 @@
       renderColorChoices();
       renderInitiative();
       renderSidebarTab();
-      renderNotes();
+      renderTaskLayoutButton();
+      renderTeamEditorToggle();
       applyPlayerView();
       syncUndoRedo();
     }
@@ -3243,13 +3435,13 @@
       return escapeHtml(value).replaceAll('"', '&quot;');
     }
     function openModal(html){
-      els.mcontent.classList.remove('bossMode');
+      els.mcontent.classList.remove('bossMode', 'taskMode');
       els.mcontent.innerHTML = html;
       els.moverlay.style.display = 'flex';
     }
     function closeModal(){
       els.moverlay.style.display = 'none';
-      els.mcontent.classList.remove('bossMode');
+      els.mcontent.classList.remove('bossMode', 'taskMode');
       els.mcontent.innerHTML = '';
     }
     function openMapChooserModal(){
@@ -3549,6 +3741,27 @@
       });
     }
     document.addEventListener('pointermove', (e) => {
+      if (taskColumnDrag) {
+        const map = currentMap();
+        const taskColumns = ensureTaskColumns(map);
+        const next = taskColumns[taskColumnDrag.key];
+        const dxPct = ((e.clientX - taskColumnDrag.startX) / taskColumnDrag.rect.width) * 100;
+        const dyPct = ((e.clientY - taskColumnDrag.startY) / taskColumnDrag.rect.height) * 100;
+        if (Math.abs(dxPct) > 0.2 || Math.abs(dyPct) > 0.2) taskColumnDrag.moved = true;
+        if (taskColumnDrag.mode === 'resize') {
+          next.w = clamp(taskColumnDrag.originW + dxPct, 12, 40);
+        } else {
+          next.x = clamp(taskColumnDrag.originX + dxPct, -8, 88);
+          next.y = clamp(taskColumnDrag.originY + dyPct, -8, 72);
+        }
+        const liveCol = els.hotspotEditor && els.hotspotEditor.querySelector(`[data-column-key="${taskColumnDrag.key}"]`);
+        if (liveCol) {
+          liveCol.style.left = `${next.x}%`;
+          liveCol.style.top = `${next.y}%`;
+          liveCol.style.width = `${next.w}%`;
+        }
+        return;
+      }
       if (!drag) return;
       const dxPct = ((e.clientX - drag.sm.x) / drag.rect.width) * 100;
       const dyPct = ((e.clientY - drag.sm.y) / drag.rect.height) * 100;
@@ -3559,6 +3772,15 @@
       drag.el.style.top = top + '%';
     });
     document.addEventListener('pointerup', () => {
+      if (taskColumnDrag) {
+        const liveCol = els.hotspotEditor && els.hotspotEditor.querySelector(`[data-column-key="${taskColumnDrag.key}"]`);
+        if (liveCol) liveCol.classList.remove('dragging');
+        if (taskColumnDrag.moved) {
+          scheduleSave();
+        }
+        taskColumnDrag = null;
+        return;
+      }
       if (!drag) return;
       const left = parseFloat(drag.el.style.left);
       const top = parseFloat(drag.el.style.top);
@@ -3598,24 +3820,27 @@
       return;
     }
     function openTaskCardModal(spot){
+      els.mcontent.classList.add('taskMode');
       openModal(`
         <div class="modalCard">
           <div class="taskModalHead">
             <div class="taskModalBody">
-              <h3>${escapeHtml(spot.tip || 'Task')}</h3>
-              <p>${escapeHtml(taskCardDescription(spot))}</p>
+              <div class="taskModalEmoji">${escapeHtml(spot.emoji || '📝')}</div>
+              <h3 class="taskModalTitle">${escapeHtml(spot.tip || 'Task')}</h3>
+              <p class="taskModalText">${escapeHtml(taskCardDescription(spot))}</p>
             </div>
             <button id="taskCloseBtn" type="button" class="taskModalClose" aria-label="Close task">✕</button>
           </div>
           <div class="modalTools">
-            <button id="taskHideBtn" type="button">Hide completed</button>
+            <button id="taskHideBtn" type="button">${spot.hidden ? 'Mark incomplete' : 'Mark complete'}</button>
           </div>
         </div>
       `);
+      els.mcontent.classList.add('taskMode');
       document.getElementById('taskCloseBtn').addEventListener('click', closeModal);
       document.getElementById('taskHideBtn').addEventListener('click', () => {
-        pushHistory('Hide task');
-        spot.hidden = true;
+        pushHistory(spot.hidden ? 'Mark task incomplete' : 'Mark task complete');
+        spot.hidden = !spot.hidden;
         closeModal();
         renderInlineHotspotEditor();
         scheduleSave();
@@ -3961,6 +4186,15 @@
       if (els.adminOverlay.style.display === 'flex') renderAdmin();
       addLog('Display mode', playerDisplay ? 'Team-safe mode enabled.' : 'Taskmaster mode restored.');
       scheduleSave();
+    }
+    function toggleTaskLayoutEdit(){
+      taskLayoutEdit = !taskLayoutEdit;
+      renderTaskLayoutButton();
+      renderInlineHotspotEditor();
+    }
+    function toggleTeamEditor(){
+      teamEditOpen = !teamEditOpen;
+      renderTeamEditorToggle();
     }
 
     function openWheelModal(spot){
@@ -5030,6 +5264,11 @@
       els.adminOverlay.style.display = 'flex';
       renderAdmin();
     }
+    function openCardEditor(){
+      adminMode = 'edit';
+      activeAdminTab = 'DRINKS';
+      openAdmin();
+    }
     function closeAdmin(){
       els.adminOverlay.style.display = 'none';
       hideEmojiPicker();
@@ -5261,9 +5500,10 @@
       target.innerHTML = '';
       const wrap = document.createElement('div');
       wrap.className = 'taskCardGrid';
+      const map = currentMap();
+      const taskColumns = ensureTaskColumns(map);
       const visibleSpots = currentHotspots().filter((spot) => {
         const text = [spot.tip, spot.sub, spot.id].join(' ').toLowerCase();
-        if (spot.hidden) return false;
         if (filterSearch && !matchesSearch(text)) return false;
         return true;
       });
@@ -5289,7 +5529,57 @@
       columns.forEach(([key, label]) => {
         const col = document.createElement('section');
         col.className = 'taskColumn';
-        col.innerHTML = `<div class="taskColumnHead">${escapeHtml(label)}</div>`;
+        col.dataset.columnKey = key;
+        const offset = taskColumns[key] || { x:0, y:0 };
+        col.style.left = `${offset.x || 0}%`;
+        col.style.top = `${offset.y || 0}%`;
+        col.style.width = `${offset.w || 100}%`;
+        col.innerHTML = `
+          <div class="taskColumnHead">${escapeHtml(label)}</div>
+          <div class="taskColumnResize" aria-hidden="true"></div>
+        `;
+        const handle = col.querySelector('.taskColumnHead');
+        const resizeHandle = col.querySelector('.taskColumnResize');
+        handle.addEventListener('pointerdown', (e) => {
+          if (window.innerWidth <= 980 || !taskLayoutEdit) return;
+          pushHistory('Move task column');
+          const rect = target.getBoundingClientRect();
+          taskColumnDrag = {
+            mode:'move',
+            key,
+            rect,
+            startX:e.clientX,
+            startY:e.clientY,
+            originX:offset.x,
+            originY:offset.y,
+            originW:offset.w || 100,
+            moved:false
+          };
+          col.classList.add('dragging');
+          handle.setPointerCapture(e.pointerId);
+          e.preventDefault();
+          e.stopPropagation();
+        });
+        resizeHandle.addEventListener('pointerdown', (e) => {
+          if (window.innerWidth <= 980 || !taskLayoutEdit) return;
+          pushHistory('Resize task column');
+          const rect = target.getBoundingClientRect();
+          taskColumnDrag = {
+            mode:'resize',
+            key,
+            rect,
+            startX:e.clientX,
+            startY:e.clientY,
+            originX:offset.x,
+            originY:offset.y,
+            originW:offset.w || 100,
+            moved:false
+          };
+          col.classList.add('dragging');
+          resizeHandle.setPointerCapture(e.pointerId);
+          e.preventDefault();
+          e.stopPropagation();
+        });
         if (!grouped[key].length) {
           const empty = document.createElement('div');
           empty.className = 'taskColumnEmpty';
@@ -5299,13 +5589,15 @@
         grouped[key].forEach((spot) => {
           const card = document.createElement('button');
           card.type = 'button';
-          card.className = 'taskLaunchCard';
+          card.className = 'taskLaunchCard' + (spot.hidden ? ' completed' : '');
           card.innerHTML = `
+            <span class="emoji">${escapeHtml(spot.emoji || '📝')}</span>
             <strong>${escapeHtml(spot.tip || 'Task')}</strong>
-            <p>${escapeHtml(taskCardDescription(spot))}</p>
-            <div class="tiny">Tap to open</div>
           `;
-          card.addEventListener('click', () => handleHotspot(spot));
+          card.addEventListener('click', () => {
+            if (taskLayoutEdit) return;
+            handleHotspot(spot);
+          });
           col.appendChild(card);
         });
         colGrid.appendChild(col);
@@ -5630,6 +5922,9 @@
     els.closeAdminBtn.addEventListener('click', closeAdmin);
     els.exportBtn.addEventListener('click', exportSave);
     els.manualSaveBtn.addEventListener('click', saveNow);
+    if (els.cardEditBtn) els.cardEditBtn.addEventListener('click', openCardEditor);
+    if (els.taskLayoutBtn) els.taskLayoutBtn.addEventListener('click', toggleTaskLayoutEdit);
+    if (els.teamEditToggleBtn) els.teamEditToggleBtn.addEventListener('click', toggleTeamEditor);
     els.importBtn.addEventListener('click', () => els.importFile.click());
     els.importFile.addEventListener('change', (e) => {
       if (e.target.files[0]) importSave(e.target.files[0]);
@@ -5645,10 +5940,6 @@
       pushHistory('Previous initiative');
       sessionState.initiativeIndex = (sessionState.initiativeIndex - 1 + players.length) % players.length;
       renderInitiative();
-      scheduleSave();
-    });
-    els.notesArea.addEventListener('input', (e) => {
-      sessionState.notes = e.target.value;
       scheduleSave();
     });
     els.playerViewBtn.addEventListener('click', togglePlayerView);
