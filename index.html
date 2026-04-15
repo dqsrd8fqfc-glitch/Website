@@ -181,16 +181,20 @@
       margin:0;
     }
     .miniIconBtn{
-      width:28px;
-      min-width:28px;
-      height:28px;
+      width:32px;
+      min-width:32px;
+      height:32px;
       padding:0;
       border-radius:999px;
-      font-size:14px;
+      font-size:16px;
       line-height:1;
       display:grid;
       place-items:center;
+      background:rgba(255,218,140,.08);
+      border:1px solid rgba(245,200,66,.2);
     }
+    #layoutInfoBtn{display:none}
+    body.taskLayoutEdit #layoutInfoBtn{display:grid}
     .leaderboardEditor{
       display:none;
       margin-top:10px;
@@ -865,11 +869,14 @@
       max-height:94vh;
     }
     #mcontent.taskMode{
-      width:min(70vw,1100px);
+      width:min(70vw,1020px);
       max-width:70vw;
       height:min(70vh,760px);
       max-height:70vh;
-      padding:24px 28px;
+      padding:18px;
+      background:
+        radial-gradient(circle at top, rgba(245,210,79,.14), transparent 34%),
+        linear-gradient(180deg,#29160b,#160c06);
     }
     .modalCard h3,.modalCard h4{color:var(--gold);margin:.2em 0}
     .modalCard p{line-height:1.45}
@@ -1600,46 +1607,27 @@
     #emojiPicker{
       position:fixed;
       display:none;
-      width:320px;
+      width:340px;
       background:#1b1007;
       border:1px solid var(--border);
       border-radius:14px;
       padding:10px;
       z-index:60;
       box-shadow:var(--shadow);
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:repeat(7,1fr);
       gap:8px;
     }
     .emojiBtn{
-      min-height:58px;
-      padding:8px 10px;
+      height:38px;
+      padding:0;
       font-size:20px;
       display:grid;
-      grid-template-columns:auto 1fr;
-      gap:10px;
-      align-items:center;
-      text-align:left;
+      place-items:center;
     }
     .emojiGlyph{
       font-size:24px;
       line-height:1;
-    }
-    .emojiMeta{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      min-width:0;
-    }
-    .emojiTitle{
-      font-size:13px;
-      color:var(--text);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .emojiSubtitle{
-      font-size:11px;
-      color:var(--muted);
+      text-align:center;
     }
     .taskCardGrid{
       position:relative;
@@ -1733,8 +1721,13 @@
       line-height:1.05;
     }
     .taskLaunchCard .emoji{
+      width:24px;
+      height:24px;
+      display:grid;
+      place-items:center;
       font-size:20px;
       line-height:1;
+      text-align:center;
     }
     .taskLaunchCard.completed{
       opacity:.58;
@@ -1751,44 +1744,125 @@
       background:rgba(26,13,8,.28);
       pointer-events:auto;
     }
-    .taskModalHead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
+    .cardEditPanel{
+      display:none;
+      margin-top:14px;
+      padding:14px;
+      border:1px solid rgba(245,200,66,.14);
+      border-radius:16px;
+      background:linear-gradient(180deg, rgba(111,19,37,.96), rgba(25,12,22,.96));
+      box-shadow:var(--shadow);
+      width:min(1080px, calc(100vw - 48px));
+      max-width:calc(100vw - 48px);
+      margin-left:auto;
+      margin-right:auto;
+    }
+    body.taskLayoutEdit .cardEditPanel{
+      display:block;
+    }
+    .cardEditGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
       gap:12px;
+    }
+    .cardEditColumn{
+      display:grid;
+      gap:10px;
+      align-content:start;
+      padding:12px;
+      border:1px solid rgba(245,200,66,.12);
+      border-radius:14px;
+      background:rgba(255,219,142,.04);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+    .cardEditColumn h3{
+      margin:0;
+      color:var(--gold);
+      font-size:15px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+    .taskModalHead{
+      position:relative;
+      display:block;
     }
     .taskModalHead h3,
     .taskModalBody p{
       margin:0;
     }
+    .taskModalCard{
+      min-height:calc(70vh - 36px);
+      display:grid;
+      grid-template-rows:1fr auto;
+      gap:18px;
+      padding:18px;
+      border-radius:24px;
+      background:
+        linear-gradient(180deg, rgba(255,249,232,.98), rgba(238,223,191,.96));
+      border:1px solid rgba(176,118,36,.45);
+      box-shadow:
+        0 24px 50px rgba(0,0,0,.34),
+        inset 0 0 0 1px rgba(255,255,255,.4);
+    }
     .taskModalBody{
       display:grid;
-      gap:22px;
+      gap:16px;
       align-content:center;
       justify-items:center;
       text-align:center;
-      min-height:calc(70vh - 170px);
+      padding:22px 28px 10px;
     }
     .taskModalEmoji{
-      font-size:72px;
+      width:92px;
+      height:92px;
+      display:grid;
+      place-items:center;
+      border-radius:999px;
+      font-size:46px;
       line-height:1;
+      text-align:center;
+      color:#8a2116;
+      background:radial-gradient(circle at 30% 30%, #fff7dd, #ecd7a8);
+      box-shadow:inset 0 0 0 1px rgba(155,102,33,.25);
     }
     .taskModalTitle{
-      font-size:clamp(40px,5.8vw,72px);
-      line-height:1.02;
-      color:var(--gold);
+      max-width:14ch;
+      font-size:clamp(40px,5vw,64px);
+      line-height:1.04;
+      color:#111 !important;
+      text-wrap:balance;
     }
     .taskModalText{
-      font-size:clamp(28px,3.6vw,44px);
-      line-height:1.3;
-      color:#fff5dc;
+      max-width:32ch;
+      font-size:clamp(30px,3.4vw,44px);
+      line-height:1.38;
+      color:#111;
       white-space:pre-wrap;
+      text-wrap:pretty;
     }
     .taskModalClose{
-      min-width:40px;
-      padding:8px 10px;
-      font-size:18px;
+      position:absolute;
+      top:0;
+      right:0;
+      min-width:42px;
+      width:42px;
+      height:42px;
+      padding:0;
+      font-size:20px;
       line-height:1;
+      border-radius:999px;
+    }
+    .taskModalActions{
+      display:flex;
+      justify-content:center;
+      padding:0 10px 10px;
+    }
+    .taskCompleteBtn{
+      min-width:220px;
+      padding:14px 20px;
+      border-radius:999px;
+      font-size:16px;
+      font-weight:700;
     }
     .adminBtns{display:flex;gap:8px;flex-wrap:wrap}
     .hidden{display:none !important}
@@ -1916,6 +1990,7 @@
         top:auto !important;
       }
       .taskColumnHead{display:none}
+      .cardEditGrid{grid-template-columns:1fr}
     }
     @media (max-width: 640px){
       .page{padding:12px}
@@ -1939,7 +2014,6 @@
     <div class="layout">
       <div class="mapCol">
         <div id="mapC">
-          <button id="cardEditBtn" class="iconBtn mapGhostBtn left" type="button" title="Edit cards" aria-label="Edit cards">✏️</button>
           <button id="taskLayoutBtn" class="iconBtn mapGhostBtn" type="button" title="Arrange task columns" aria-label="Arrange task columns">↔</button>
           <img id="mapImg" alt="Taskmaster board" src="https://dqsrd8fqfc-glitch.github.io/Website/Image.png">
           <div id="bannerMask"></div>
@@ -1953,6 +2027,7 @@
             <input id="mapFile" type="file" accept="image/*" class="hidden">
           </div>
         </div>
+        <div id="cardEditPanel" class="cardEditPanel"></div>
       </div>
       <aside class="sidebar">
         <div class="sidebarTabs">
@@ -1965,7 +2040,10 @@
             <div class="panelBody">
               <div class="panelHead">
                 <h2>Leaderboard</h2>
-                <button id="teamEditToggleBtn" class="miniIconBtn" type="button" title="Edit teams" aria-label="Edit teams">✏️</button>
+                <div class="smallActions tight">
+                  <button id="layoutInfoBtn" class="miniIconBtn" type="button" title="Layout info" aria-label="Layout info">i</button>
+                  <button id="teamEditToggleBtn" class="miniIconBtn" type="button" title="Edit teams" aria-label="Edit teams">✏️</button>
+                </div>
               </div>
               <div id="playerList" class="plist"></div>
               <div id="leaderboardEditor" class="leaderboardEditor">
@@ -2074,8 +2152,8 @@
       ['olive', '#7a8731']
     ];
     const THIRST_COLORS = ['#5b1818','#77231b','#94301d','#ab4320','#c05b25','#d37a29','#df972f','#e7ab34','#edb83a','#f1c33e','#f5c842'];
-    const PEOPLE_EMOJIS = ['👤','🧑','👨','👩','🧔','👨‍🦰','👩‍🦰','👱','👱‍♀️','👱‍♂️','👨‍🦳','👩‍🦳','👨‍🦲','👩‍🦲','🧓','👴','👵','🧑‍🦱','🧑‍🦰','🧑‍🦳','🧑‍🦲','🕵️','🕵️‍♀️','🕵️‍♂️','🧙','🧙‍♀️','🧙‍♂️','🧝','🧝‍♀️','🧝‍♂️','🧛','🧛‍♀️','🧛‍♂️','🧟','🧟‍♀️','🧟‍♂️','🥷','🤴','👸','🫅','💂','💂‍♀️','💂‍♂️','👮','👮‍♀️','👮‍♂️','🧑‍🌾','🧑‍🍳','🧑‍🎤','🧑‍🏫','🧑‍🔧','🧑‍⚕️','🧑‍🎨','🧑‍🚒','🧑‍✈️','🧑‍💼'];
-    const HOTSPOT_EMOJIS = ['🍺','🎲','🕯️','🎭','🎁','🏮','🔥','🎯','🍻','🛢','📚','🪑','🛋️','🎵','⬇','📦','🥂','💀','🔄','👉','🎮','🃏','🧩','🪙','🔔','🗝️','📜','👁️','⚔️','📛','🔗','🍀','⭐','⛪','🎤','✨','💪','🗣️','🔮','🕊️','🩸','🌊','🍷','📕','📘','📗','📙','📓','🧪','🪄','🧿','🫗','🎻','🎰','🎪','🧭','🪞','🦴','🦉','🐦','🌙','☄️'];
+    const PEOPLE_EMOJIS = ['👤','🧑','👨','👩','🧔','👨‍🦰','👩‍🦰','👱','👱‍♀️','👱‍♂️','👨‍🦳','👩‍🦳','👨‍🦲','👩‍🦲','🧓','👴','👵','🧑‍🦱','🧑‍🦰','🧑‍🦳','🧑‍🦲','🕵️','🕵️‍♀️','🕵️‍♂️','🧙','🧙‍♀️','🧙‍♂️','🧝','🧝‍♀️','🧝‍♂️','🧛','🧛‍♀️','🧛‍♂️','🧟','🧟‍♀️','🧟‍♂️','🥷','🤴','👸','🫅','💂','💂‍♀️','💂‍♂️','👮','👮‍♀️','👮‍♂️','🧑‍🌾','🧑‍🍳','🧑‍🎤','🧑‍🏫','🧑‍🔧','🧑‍⚕️','🧑‍🎨','🧑‍🚒','🧑‍✈️','🧑‍💼','🧑‍🔬','🧑‍🚀','🧑‍⚖️','🧑‍🎓','🧑‍🏭','🧑‍🍼','🙋','🙋‍♀️','🙋‍♂️','🙆','🙆‍♀️','🙆‍♂️','🤷','🤷‍♀️','🤷‍♂️','💁','💁‍♀️','💁‍♂️','🙎','🙎‍♀️','🙎‍♂️','🙍','🙍‍♀️','🙍‍♂️','🧏','🧏‍♀️','🧏‍♂️','🙇','🙇‍♀️','🙇‍♂️'];
+    const HOTSPOT_EMOJIS = ['🍺','🎲','🕯️','🎭','🎁','🏮','🔥','🎯','🍻','🛢','📚','🪑','🛋️','🎵','⬇','📦','🥂','💀','🔄','👉','🎮','🃏','🧩','🪙','🔔','🗝️','📜','👁️','⚔️','📛','🔗','🍀','⭐','⛪','🎤','✨','💪','🗣️','🔮','🕊️','🩸','🌊','🍷','📕','📘','📗','📙','📓','🧪','🪄','🧿','🫗','🎻','🎰','🎪','🧭','🪞','🦴','🦉','🐦','🌙','☄️','☕️','🍰','🎂','🍋','🫖','🧁','🍪','🍓','🍍','🍉','🍒','🥝','🥔','🧀','🍿','🥨','🍔','🌮','🍕','🎈','🎉','🪩','🏆','🥇','🥈','🥉','⏱️','⌛','🎬','🎨','🖍️','✂️','🧵','🧶','🪡','📎','📌','📍','🪄','🎯','🏹','🪅','🎳','🏓','⚽','🏀','🏐','🏸','🥎','🎾','🧠','💡','🔍','🧲','🧱','🪜','🛎️','🚪','🛎','🎁','📣','📸','🎥','🎞️','🎙️','🎚️','🎛️'];
     const EMOJIS = [...HOTSPOT_EMOJIS, ...PEOPLE_EMOJIS];
     const EMOJI_TITLES = {
       '👤':'Person','🧑':'Person','👨':'Man','👩':'Woman','🧔':'Bearded','👨‍🦰':'Red-Haired Man','👩‍🦰':'Red-Haired Woman',
@@ -2181,6 +2259,7 @@
 
     const HOTSPOTS = [
       { id:'wheel', left:38, top:21, emoji:'🎡', tip:'Prize Wheel', type:'wheel', mode:'core', coreAction:'wheel', customCards:[] },
+      { id:'tea_bags', left:20, top:50, emoji:'☕️', tip:'Tea Bags', sub:'Team that gets the most tea bags in the pot wins!', type:'draw', mode:'draw', coreAction:'', hidden:false, customCards:[] },
       { id:'jukebox', left:70, top:21, emoji:'✉️', tip:'Task Envelope', type:'draw', mode:'core', coreAction:'jukebox', customCards:[
         { id:'jukebox_1', icon:'🎶', text:'Hum That Tune', sub:'A team starts humming a song. First correct guess earns 2 points.' },
         { id:'jukebox_2', icon:'🎤', text:'One Word Lyrics', sub:'Go around the room saying one word of a song each. First stall loses a point.' },
@@ -2325,7 +2404,7 @@
       body:document.body,
       pubNameInput:document.getElementById('pubNameInput'),
       mapC:document.getElementById('mapC'),
-      cardEditBtn:document.getElementById('cardEditBtn'),
+      cardEditPanel:document.getElementById('cardEditPanel'),
       mapImg:document.getElementById('mapImg'),
       bannerMask:document.getElementById('bannerMask'),
       hotspotLayer:document.getElementById('hotspotLayer'),
@@ -2346,6 +2425,7 @@
       addPlayerBtn:document.getElementById('addPlayerBtn'),
       colorRow:document.getElementById('colorRow'),
       playerList:document.getElementById('playerList'),
+      layoutInfoBtn:document.getElementById('layoutInfoBtn'),
       teamEditToggleBtn:document.getElementById('teamEditToggleBtn'),
       leaderboardEditor:document.getElementById('leaderboardEditor'),
       playerAdder:document.getElementById('playerAdder'),
@@ -2512,13 +2592,8 @@
       return EMOJI_TITLES[emoji] || 'Emoji option';
     }
     function taskCardDescription(spot){
-      const cards = Array.isArray(spot.customCards) ? spot.customCards : [];
       if (typeof spot.sub === 'string' && spot.sub.trim()) return spot.sub.trim();
-      if (cards.length) {
-        const sample = cards.slice(0, 2).map((card) => card.text || card.name).filter(Boolean);
-        if (sample.length) return 'Includes: ' + sample.join(' and ') + '.';
-      }
-      return 'Tap to open this task and run it.';
+      return 'Add Text';
     }
     function taskColumnKey(spot){
       const left = Number(spot && spot.left);
@@ -2526,11 +2601,14 @@
       if (left <= 67) return 'creative';
       return 'mental';
     }
+    function cardColumnLeft(column){
+      return { physical:20, creative:50, mental:80 }[column] || 20;
+    }
     function defaultTaskColumns(){
       return {
-        physical:{ x:2, y:0, w:23 },
-        creative:{ x:38.5, y:0, w:23 },
-        mental:{ x:75, y:0, w:23 }
+        physical:{ x:7.5091360215583824, y:34.12371999328521, w:23 },
+        creative:{ x:38.63925860199152, y:33.98452800626713, w:23 },
+        mental:{ x:69.67407736041277, y:33.922975770801855, w:23 }
       };
     }
     function ensureTaskColumns(map){
@@ -2539,24 +2617,21 @@
       const saved = map.taskColumns && typeof map.taskColumns === 'object' ? map.taskColumns : {};
       map.taskColumns = {
         physical:{
-          x:Number(saved.physical && saved.physical.x),
-          y:Number(saved.physical && saved.physical.y) || 0,
-          w:clamp(Number(saved.physical && saved.physical.w) || 23, 12, 40)
+          x:Number.isFinite(Number(saved.physical && saved.physical.x)) ? Number(saved.physical.x) : base.physical.x,
+          y:Number.isFinite(Number(saved.physical && saved.physical.y)) ? Number(saved.physical.y) : base.physical.y,
+          w:clamp(Number(saved.physical && saved.physical.w) || base.physical.w, 12, 40)
         },
         creative:{
-          x:Number(saved.creative && saved.creative.x),
-          y:Number(saved.creative && saved.creative.y) || 0,
-          w:clamp(Number(saved.creative && saved.creative.w) || 23, 12, 40)
+          x:Number.isFinite(Number(saved.creative && saved.creative.x)) ? Number(saved.creative.x) : base.creative.x,
+          y:Number.isFinite(Number(saved.creative && saved.creative.y)) ? Number(saved.creative.y) : base.creative.y,
+          w:clamp(Number(saved.creative && saved.creative.w) || base.creative.w, 12, 40)
         },
         mental:{
-          x:Number(saved.mental && saved.mental.x),
-          y:Number(saved.mental && saved.mental.y) || 0,
-          w:clamp(Number(saved.mental && saved.mental.w) || 23, 12, 40)
+          x:Number.isFinite(Number(saved.mental && saved.mental.x)) ? Number(saved.mental.x) : base.mental.x,
+          y:Number.isFinite(Number(saved.mental && saved.mental.y)) ? Number(saved.mental.y) : base.mental.y,
+          w:clamp(Number(saved.mental && saved.mental.w) || base.mental.w, 12, 40)
         }
       };
-      if (!Number.isFinite(map.taskColumns.physical.x)) map.taskColumns.physical.x = 2;
-      if (!Number.isFinite(map.taskColumns.creative.x)) map.taskColumns.creative.x = 38.5;
-      if (!Number.isFinite(map.taskColumns.mental.x)) map.taskColumns.mental.x = 75;
       return map.taskColumns || base;
     }
     function normalizeHotspot(spot){
@@ -3822,17 +3897,17 @@
     function openTaskCardModal(spot){
       els.mcontent.classList.add('taskMode');
       openModal(`
-        <div class="modalCard">
+        <div class="modalCard taskModalCard">
           <div class="taskModalHead">
+            <button id="taskCloseBtn" type="button" class="taskModalClose" aria-label="Close task">✕</button>
             <div class="taskModalBody">
               <div class="taskModalEmoji">${escapeHtml(spot.emoji || '📝')}</div>
               <h3 class="taskModalTitle">${escapeHtml(spot.tip || 'Task')}</h3>
               <p class="taskModalText">${escapeHtml(taskCardDescription(spot))}</p>
             </div>
-            <button id="taskCloseBtn" type="button" class="taskModalClose" aria-label="Close task">✕</button>
           </div>
-          <div class="modalTools">
-            <button id="taskHideBtn" type="button">${spot.hidden ? 'Mark incomplete' : 'Mark complete'}</button>
+          <div class="taskModalActions">
+            <button id="taskHideBtn" class="taskCompleteBtn" type="button">${spot.hidden ? 'Mark Incomplete' : 'Mark Complete'}</button>
           </div>
         </div>
       `);
@@ -4195,6 +4270,32 @@
     function toggleTeamEditor(){
       teamEditOpen = !teamEditOpen;
       renderTeamEditorToggle();
+    }
+    function openLayoutInfo(){
+      const map = currentMap();
+      const cols = ensureTaskColumns(map);
+      const payload = JSON.stringify(cols, null, 2);
+      openModal(`
+        <div class="modalCard">
+          <h3>Column Layout</h3>
+          <p>These are the current column positions and widths. If you want me to lock them into the HTML defaults, send me these values.</p>
+          <div class="revealCard"><pre style="margin:0;white-space:pre-wrap;">${escapeHtml(payload)}</pre></div>
+          <div class="modalTools">
+            <button id="copyLayoutBtn" type="button">Copy Layout Values</button>
+          </div>
+        </div>
+      `);
+      const copyBtn = document.getElementById('copyLayoutBtn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(payload);
+            copyBtn.textContent = 'Copied';
+          } catch (err) {
+            copyBtn.textContent = 'Copy failed';
+          }
+        });
+      }
     }
 
     function openWheelModal(spot){
@@ -5265,9 +5366,12 @@
       renderAdmin();
     }
     function openCardEditor(){
-      adminMode = 'edit';
-      activeAdminTab = 'DRINKS';
-      openAdmin();
+      if (!taskLayoutEdit) {
+        taskLayoutEdit = true;
+        renderTaskLayoutButton();
+      }
+      renderInlineHotspotEditor();
+      if (els.cardEditPanel) els.cardEditPanel.scrollIntoView({ behavior:'smooth', block:'start' });
     }
     function closeAdmin(){
       els.adminOverlay.style.display = 'none';
@@ -5605,9 +5709,109 @@
       wrap.appendChild(colGrid);
       target.appendChild(wrap);
     }
+    function renderCardEditorPanel(){
+      if (!els.cardEditPanel) return;
+      if (!taskLayoutEdit) {
+        els.cardEditPanel.innerHTML = '';
+        return;
+      }
+      const cards = currentHotspots();
+      const groups = {
+        physical:cards.filter((card) => taskColumnKey(card) === 'physical'),
+        creative:cards.filter((card) => taskColumnKey(card) === 'creative'),
+        mental:cards.filter((card) => taskColumnKey(card) === 'mental')
+      };
+      els.cardEditPanel.innerHTML = `
+        <div class="cardEditGrid">
+          <section class="cardEditColumn" data-column="physical">
+            <h3>Physical</h3>
+            <div class="editGrid" data-role="list"></div>
+            <button type="button" class="addRow" data-add-column="physical">＋ Add Card</button>
+          </section>
+          <section class="cardEditColumn" data-column="creative">
+            <h3>Creative</h3>
+            <div class="editGrid" data-role="list"></div>
+            <button type="button" class="addRow" data-add-column="creative">＋ Add Card</button>
+          </section>
+          <section class="cardEditColumn" data-column="mental">
+            <h3>Mental</h3>
+            <div class="editGrid" data-role="list"></div>
+            <button type="button" class="addRow" data-add-column="mental">＋ Add Card</button>
+          </section>
+        </div>
+      `;
+      Object.entries(groups).forEach(([column, list]) => {
+        const mount = els.cardEditPanel.querySelector(`[data-column="${column}"] [data-role="list"]`);
+        list.forEach((card) => {
+          const row = document.createElement('div');
+          row.className = 'editCard';
+          row.innerHTML = `
+            <div class="editRow">
+              <button type="button" class="bigEmoji">${escapeHtml(card.emoji || '📝')}</button>
+              <input type="text" value="${escapeAttr(card.tip || '')}" placeholder="Card title">
+              <button type="button" class="miniBtn" data-act="delete">✕</button>
+            </div>
+            <textarea placeholder="Add Text">${escapeHtml(card.sub || '')}</textarea>
+          `;
+          const emojiBtn = row.querySelector('.bigEmoji');
+          const titleInput = row.querySelector('input');
+          const descInput = row.querySelector('textarea');
+          emojiBtn.addEventListener('click', (ev) => toggleEmojiPicker(ev.currentTarget, (emoji) => {
+            pushHistory('Edit board card emoji');
+            card.emoji = emoji;
+            renderInlineHotspotEditor();
+            renderCardEditorPanel();
+            scheduleSave();
+          }, HOTSPOT_EMOJIS));
+          titleInput.addEventListener('focus', () => pushHistory('Edit board card title'), { once:true });
+          titleInput.addEventListener('input', () => {
+            card.tip = titleInput.value;
+            renderInlineHotspotEditor();
+            scheduleSave();
+          });
+          descInput.addEventListener('focus', () => pushHistory('Edit board card description'), { once:true });
+          descInput.addEventListener('input', () => {
+            card.sub = descInput.value;
+            scheduleSave();
+          });
+          row.querySelector('[data-act="delete"]').addEventListener('click', () => {
+            pushHistory('Delete board card');
+            const idx = cards.findIndex((item) => item.id === card.id);
+            if (idx >= 0) cards.splice(idx, 1);
+            renderInlineHotspotEditor();
+            renderCardEditorPanel();
+            scheduleSave();
+          });
+          mount.appendChild(row);
+        });
+      });
+      els.cardEditPanel.querySelectorAll('[data-add-column]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const column = btn.dataset.addColumn;
+          pushHistory('Add board card');
+          cards.push({
+            id:uid('spot'),
+            left:cardColumnLeft(column),
+            top:50,
+            emoji:'📝',
+            tip:'New Card',
+            sub:'Add Text',
+            mode:'draw',
+            coreAction:'',
+            type:'draw',
+            hidden:false,
+            customCards:[]
+          });
+          renderInlineHotspotEditor();
+          renderCardEditorPanel();
+          scheduleSave();
+        });
+      });
+    }
     function renderInlineHotspotEditor(){
       if (!els.hotspotEditor) return;
       mountHotspotEditor(els.hotspotEditor, false);
+      renderCardEditorPanel();
     }
     function renderHotspotEditor(){
       mountHotspotEditor(els.adminContent, true);
@@ -5728,18 +5932,10 @@
       els.emojiPicker.innerHTML = '';
       (emojis || EMOJIS).forEach((entry) => {
         const emoji = typeof entry === 'string' ? entry : entry.emoji;
-        const title = typeof entry === 'string' ? emojiTitle(entry) : (entry.title || emojiTitle(entry.emoji));
-        const subtitle = typeof entry === 'string' ? 'Tap to choose' : (entry.subtitle || 'Tap to choose');
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'emojiBtn';
-        btn.innerHTML = `
-          <span class="emojiGlyph">${escapeHtml(emoji)}</span>
-          <span class="emojiMeta">
-            <span class="emojiTitle">${escapeHtml(title)}</span>
-            <span class="emojiSubtitle">${escapeHtml(subtitle)}</span>
-          </span>
-        `;
+        btn.innerHTML = `<span class="emojiGlyph">${escapeHtml(emoji)}</span>`;
         btn.addEventListener('click', () => {
           if (pickerState && pickerState.onPick) pickerState.onPick(emoji);
           hideEmojiPicker();
@@ -5747,8 +5943,8 @@
         els.emojiPicker.appendChild(btn);
       });
       els.emojiPicker.style.display = 'grid';
-      els.emojiPicker.style.left = Math.max(12, Math.min(window.innerWidth - 340, rect.left)) + 'px';
-      els.emojiPicker.style.top = Math.max(12, Math.min(window.innerHeight - 280, rect.bottom + 8)) + 'px';
+      els.emojiPicker.style.left = Math.max(12, Math.min(window.innerWidth - 360, rect.left)) + 'px';
+      els.emojiPicker.style.top = Math.max(12, Math.min(window.innerHeight - 240, rect.bottom + 8)) + 'px';
     }
     function hideEmojiPicker(){
       els.emojiPicker.style.display = 'none';
@@ -5922,8 +6118,8 @@
     els.closeAdminBtn.addEventListener('click', closeAdmin);
     els.exportBtn.addEventListener('click', exportSave);
     els.manualSaveBtn.addEventListener('click', saveNow);
-    if (els.cardEditBtn) els.cardEditBtn.addEventListener('click', openCardEditor);
     if (els.taskLayoutBtn) els.taskLayoutBtn.addEventListener('click', toggleTaskLayoutEdit);
+    if (els.layoutInfoBtn) els.layoutInfoBtn.addEventListener('click', openLayoutInfo);
     if (els.teamEditToggleBtn) els.teamEditToggleBtn.addEventListener('click', toggleTeamEditor);
     els.importBtn.addEventListener('click', () => els.importFile.click());
     els.importFile.addEventListener('change', (e) => {
