@@ -185,6 +185,10 @@
       left:14px;
       right:auto;
     }
+    .mapGhostBtn.right{
+      left:auto;
+      right:14px;
+    }
     .mapGhostBtn:hover,
     .mapGhostBtn:focus-visible,
     body.taskLayoutEdit .mapGhostBtn{
@@ -304,10 +308,10 @@
       align-items:center;
     }
     .sidebar{
-      width:312px;
+      width:248px;
       position:fixed;
       top:16px;
-      left:calc(100vw - 328px);
+      left:calc(100vw - 264px);
       display:flex;
       flex-direction:column;
       gap:12px;
@@ -339,6 +343,15 @@
     }
     .panelBody{padding:0 14px 14px}
     .panelBody > *{min-width:0}
+    .leaderboardShell{
+      background:transparent;
+      border:0;
+      box-shadow:none;
+      overflow:visible;
+    }
+    .leaderboardBody{
+      padding:0;
+    }
     .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
     .tiny{font-size:12px;color:var(--muted)}
     .sidebarTabs{display:none}
@@ -399,10 +412,10 @@
       inset:0;
     }
     #hotspotLayer{z-index:3}
-    #hotspotEditor{
+    #taskBoardLayer{
       position:absolute;
       inset:0;
-      z-index:12;
+      z-index:25;
       pointer-events:none;
       overflow:visible;
     }
@@ -560,7 +573,7 @@
     }
     .teamManageTop{
       display:grid;
-      grid-template-columns:minmax(0,1fr) auto;
+      grid-template-columns:36px minmax(0,1fr) auto;
       gap:8px;
       align-items:center;
     }
@@ -655,10 +668,11 @@
     .prow{
       grid-template-columns:minmax(0,1fr);
       gap:4px;
-      padding:7px 10px;
+      padding:7px 8px;
       position:relative;
       overflow:hidden;
       min-height:0;
+      border-radius:10px;
     }
     .nrow{grid-template-columns:auto minmax(0,1fr)}
     .effectRow,.logRow,.deckRow{grid-template-columns:minmax(0,1fr) auto}
@@ -699,14 +713,26 @@
     }
     .teamMain{
       display:grid;
-      grid-template-columns:minmax(0,1fr) auto;
-      gap:8px;
+      grid-template-columns:auto minmax(0,1fr) auto;
+      gap:6px;
       min-width:0;
       align-items:center;
     }
+    .teamBadge{
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      font-size:18px;
+      line-height:1;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.22);
+      flex:none;
+    }
     .teamLeft{
       display:grid;
-      gap:3px;
+      gap:4px;
       min-width:0;
     }
     .teamTop{
@@ -721,7 +747,7 @@
       gap:6px;
       align-content:center;
       justify-items:end;
-      min-width:74px;
+      min-width:58px;
     }
     .teamMemberAddWrap{
       position:absolute;
@@ -731,24 +757,24 @@
       place-items:center;
     }
     .teamScore{
-      min-width:70px;
-      padding:5px 6px;
-      border-radius:10px;
+      min-width:54px;
+      padding:4px 5px;
+      border-radius:8px;
       text-align:center;
-      background:rgba(10,8,10,.44);
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow:var(--glow);
+      background:rgba(10,8,10,.28);
+      border:1px solid rgba(255,255,255,.22);
+      box-shadow:none;
     }
     .teamScore strong{
       display:block;
-      font-size:18px;
+      font-size:15px;
       line-height:1;
       color:var(--gold);
     }
     .teamScore span{
       display:block;
       margin-top:1px;
-      font-size:8px;
+      font-size:7px;
       letter-spacing:.16em;
       text-transform:uppercase;
       color:var(--muted);
@@ -767,30 +793,30 @@
     }
     .teamNameInput{
       font-weight:700;
-      font-size:16px;
+      font-size:13px;
       line-height:1.1;
     }
     .teamControls{
       display:flex;
-      gap:6px;
+      gap:4px;
       align-items:center;
       justify-content:flex-end;
     }
     .memberChips{
       display:flex;
-      gap:4px;
+      gap:3px;
       flex-wrap:wrap;
       padding-right:0;
     }
     .memberChip{
       display:inline-flex;
       align-items:center;
-      gap:4px;
-      padding:2px 6px;
+      gap:3px;
+      padding:2px 5px;
       border-radius:999px;
-      border:1px solid rgba(245,210,79,.18);
-      background:rgba(255,218,140,.06);
-      font-size:10px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.14);
+      font-size:8px;
       line-height:1.1;
     }
     .memberChip .remove{
@@ -802,16 +828,16 @@
       cursor:pointer;
     }
     .scoreBtn{
-      min-width:32px;
-      width:32px;
-      height:32px;
+      min-width:24px;
+      width:24px;
+      height:24px;
       padding:0;
-      border-radius:9px;
-      font-size:18px;
+      border-radius:7px;
+      font-size:15px;
       font-weight:800;
       display:grid;
       place-items:center;
-      box-shadow:var(--glow);
+      box-shadow:none;
     }
     .scoreBtn.minus{
       background:linear-gradient(180deg,#731927,#4a121b);
@@ -901,6 +927,10 @@
       height:min(70vh,760px);
       max-height:70vh;
       padding:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:auto;
       background:
         radial-gradient(circle at top, rgba(245,210,79,.14), transparent 34%),
         linear-gradient(180deg,#29160b,#160c06);
@@ -1657,11 +1687,15 @@
       text-align:center;
     }
     .taskCardGrid{
-      position:relative;
+      position:absolute;
+      inset:0;
       height:100%;
+      min-height:100%;
+      pointer-events:none;
     }
     .taskColumnGrid{
-      position:relative;
+      position:absolute;
+      inset:0;
       height:100%;
       min-height:100%;
     }
@@ -1672,6 +1706,7 @@
       gap:6px;
       align-content:start;
       min-width:0;
+      z-index:2;
     }
     .taskColumnHead{
       display:none;
@@ -1734,26 +1769,27 @@
       border:1px solid rgba(102,57,18,.38);
       border-radius:12px;
       background:linear-gradient(180deg, rgba(128,77,33,.96), rgba(92,52,20,.96));
-      padding:7px 10px;
+      min-height:56px;
+      padding:12px 12px;
       text-align:left;
       display:grid;
       grid-template-columns:auto 1fr;
-      gap:8px;
+      gap:10px;
       align-items:center;
       box-shadow:0 10px 22px rgba(0,0,0,.2);
       pointer-events:auto;
     }
     .taskLaunchCard strong{
-      font-size:13px;
+      font-size:15px;
       color:#f7e7c0;
-      line-height:1.05;
+      line-height:1.12;
     }
     .taskLaunchCard .emoji{
-      width:24px;
-      height:24px;
+      width:28px;
+      height:28px;
       display:grid;
       place-items:center;
-      font-size:20px;
+      font-size:22px;
       line-height:1;
       text-align:center;
     }
@@ -1790,9 +1826,6 @@
       max-width:none;
       z-index:18;
     }
-    body.taskLayoutEdit .cardEditPanel{
-      display:block;
-    }
     .cardEditGrid{
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
@@ -1824,6 +1857,8 @@
       margin:0;
     }
     .taskModalCard{
+      width:100%;
+      height:100%;
       min-height:calc(70vh - 36px);
       display:grid;
       grid-template-rows:1fr auto;
@@ -1844,6 +1879,9 @@
       justify-items:center;
       text-align:center;
       padding:22px 28px 10px;
+      width:100%;
+      height:100%;
+      margin:auto;
     }
     .taskModalEmoji{
       width:92px;
@@ -2022,7 +2060,7 @@
         margin:0;
         padding:12px;
       }
-      #hotspotEditor{
+      #taskBoardLayer{
         position:static;
         inset:auto;
         pointer-events:auto;
@@ -2054,9 +2092,9 @@
         min-height:100vh;
       }
       .sidebar{
-        width:278px;
+        width:228px;
         top:10px;
-        left:calc(100vw - 288px);
+        left:calc(100vw - 238px);
         gap:10px;
         max-height:calc(100vh - 20px);
         padding:0;
@@ -2134,10 +2172,11 @@
       <div class="mapCol">
         <div id="mapC">
           <button id="taskLayoutBtn" class="mapGhostBtn left" type="button" title="Arrange task columns" aria-label="Arrange task columns">Edit Layout</button>
+          <button id="layoutToggleBtn" class="mapGhostBtn right" type="button" title="Move board items" aria-label="Move board items">Layout</button>
           <img id="mapImg" alt="" src="https://dqsrd8fqfc-glitch.github.io/Website/Image.png" aria-hidden="true">
           <div id="bannerMask"></div>
           <div id="hotspotLayer"></div>
-          <div id="hotspotEditor"></div>
+          <div id="taskBoardLayer"></div>
           <div id="annotationLayer"></div>
           <div id="tokenLayer"></div>
           <div id="loadOverlay">
@@ -2155,17 +2194,10 @@
         </div>
 
         <div id="sessionTab" class="sideTab active">
-          <section id="leaderboardPanel" class="panel">
-            <div class="panelBody">
-              <div id="leaderboardDragHandle" class="panelHead dragHandle">
-                <h2>Leaderboard</h2>
-                <div class="smallActions tight">
-                  <button id="layoutInfoBtn" class="miniIconBtn" type="button" title="Layout info" aria-label="Layout info">i</button>
-                  <button id="teamEditToggleBtn" class="miniIconBtn" type="button" title="Edit teams" aria-label="Edit teams">✏️</button>
-                </div>
-              </div>
+          <section id="leaderboardPanel" class="panel leaderboardShell dragHandle">
+            <div class="panelBody leaderboardBody">
               <div id="playerList" class="plist"></div>
-              <div id="leaderboardEditor" class="leaderboardEditor">
+              <div id="leaderboardEditor" class="leaderboardEditor hidden">
                 <div class="teamAddWrap">
                   <details id="playerAdder" class="playerAdder">
                     <summary>+ New Team</summary>
@@ -2395,11 +2427,10 @@
     const NPCS = [];
 
     const DEFAULT_TEAMS = [
-      { name:'Team Red', color:'#d12c3f', members:[{ emoji:'😀', name:'Member 1' }, { emoji:'🎈', name:'Member 2' }] },
-      { name:'Team Blue', color:'#3a7bd5', members:[{ emoji:'😎', name:'Member 1' }, { emoji:'🎉', name:'Member 2' }] },
-      { name:'Team Gold', color:'#d8a021', members:[{ emoji:'🥳', name:'Member 1' }, { emoji:'🌟', name:'Member 2' }] },
-      { name:'Team Green', color:'#3f8f43', members:[{ emoji:'🎯', name:'Member 1' }, { emoji:'🍀', name:'Member 2' }] },
-      { name:'Team Pink', color:'#ca5b8f', members:[{ emoji:'🪩', name:'Member 1' }, { emoji:'🎂', name:'Member 2' }] }
+      { name:'Team Red', emoji:'❤️', color:'#d12c3f', members:[{ emoji:'😀', name:'Member 1' }, { emoji:'🎈', name:'Member 2' }] },
+      { name:'Team Blue', emoji:'💙', color:'#3a7bd5', members:[{ emoji:'😎', name:'Member 1' }, { emoji:'🎉', name:'Member 2' }] },
+      { name:'Team Gold', emoji:'⭐', color:'#d8a021', members:[{ emoji:'🥳', name:'Member 1' }, { emoji:'🌟', name:'Member 2' }] },
+      { name:'Team Green', emoji:'🍀', color:'#3f8f43', members:[{ emoji:'🎯', name:'Member 1' }, { emoji:'🍀', name:'Member 2' }] }
     ];
 
     const DEFAULT_WHEEL_SEGMENTS = [
@@ -2475,6 +2506,7 @@
       mapImg:document.getElementById('mapImg'),
       bannerMask:document.getElementById('bannerMask'),
       hotspotLayer:document.getElementById('hotspotLayer'),
+      taskBoardLayer:document.getElementById('taskBoardLayer'),
       annotationLayer:document.getElementById('annotationLayer'),
       tokenLayer:document.getElementById('tokenLayer'),
       loadOverlay:document.getElementById('loadOverlay'),
@@ -2497,10 +2529,9 @@
       leaderboardEditor:document.getElementById('leaderboardEditor'),
       sidebar:document.querySelector('.sidebar'),
       leaderboardPanel:document.getElementById('leaderboardPanel'),
-      leaderboardDragHandle:document.getElementById('leaderboardDragHandle'),
+      leaderboardDragHandle:document.getElementById('leaderboardPanel'),
       playerAdder:document.getElementById('playerAdder'),
       teamManagerList:document.getElementById('teamManagerList'),
-      hotspotEditor:document.getElementById('hotspotEditor'),
       initiativeTrack:document.getElementById('initiativeTrack'),
       initPrevBtn:document.getElementById('initPrevBtn'),
       fillBtn:document.getElementById('fillBtn'),
@@ -2523,6 +2554,7 @@
       saveFlash:document.getElementById('saveFlash'),
       manualSaveBtn:document.getElementById('manualSaveBtn'),
       taskLayoutBtn:document.getElementById('taskLayoutBtn'),
+      layoutToggleBtn:document.getElementById('layoutToggleBtn'),
       emojiPicker:document.getElementById('emojiPicker'),
       runModeBtn:document.getElementById('runModeBtn'),
       editModeBtn:document.getElementById('editModeBtn'),
@@ -2562,7 +2594,7 @@
     let actionHistory = [];
     let redoHistory = [];
     let saveSuspended = false;
-    let sidebarPosition = { x:null, y:16 };
+    let sidebarPosition = { x:1082.79296875, y:287.6875 };
 
     const sessionState = {
       activeEffects:[],
@@ -2612,6 +2644,7 @@
       return DEFAULT_TEAMS.map((team, index) => ({
         id:'p' + (index + 1),
         name:team.name,
+        emoji:team.emoji || '🏷️',
         members:Array.isArray(team.members) ? team.members.map((member) => ({ ...member })) : [],
         color:team.color,
         score:0,
@@ -2657,6 +2690,9 @@
       }
       return [];
     }
+    function normalizeTeamEmoji(value){
+      return typeof value === 'string' && value.trim() ? value.trim() : '🏷️';
+    }
     function uid(prefix){
       return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
     }
@@ -2678,9 +2714,9 @@
     }
     function defaultTaskColumns(){
       return {
-        physical:{ x:7.5091360215583824, y:34.12371999328521, w:23 },
-        creative:{ x:38.63925860199152, y:33.98452800626713, w:23 },
-        mental:{ x:69.67407736041277, y:33.922975770801855, w:23 }
+        physical:{ x:9.097328324378777, y:44.01658807120085, w:21 },
+        creative:{ x:30.13575596037609, y:43.34451381509033, w:21 },
+        mental:{ x:51.421833025520485, y:43.37108129649309, w:21 }
       };
     }
     function ensureTaskColumns(map){
@@ -2689,28 +2725,27 @@
       const saved = map.taskColumns && typeof map.taskColumns === 'object' ? map.taskColumns : {};
       map.taskColumns = {
         physical:{
-          x:Number.isFinite(Number(saved.physical && saved.physical.x)) ? Number(saved.physical.x) : base.physical.x,
-          y:Number.isFinite(Number(saved.physical && saved.physical.y)) ? Number(saved.physical.y) : base.physical.y,
+          x:clamp(Number.isFinite(Number(saved.physical && saved.physical.x)) ? Number(saved.physical.x) : base.physical.x, 0, 77),
+          y:clamp(Number.isFinite(Number(saved.physical && saved.physical.y)) ? Number(saved.physical.y) : base.physical.y, 0, 60),
           w:clamp(Number(saved.physical && saved.physical.w) || base.physical.w, 12, 40)
         },
         creative:{
-          x:Number.isFinite(Number(saved.creative && saved.creative.x)) ? Number(saved.creative.x) : base.creative.x,
-          y:Number.isFinite(Number(saved.creative && saved.creative.y)) ? Number(saved.creative.y) : base.creative.y,
+          x:clamp(Number.isFinite(Number(saved.creative && saved.creative.x)) ? Number(saved.creative.x) : base.creative.x, 0, 77),
+          y:clamp(Number.isFinite(Number(saved.creative && saved.creative.y)) ? Number(saved.creative.y) : base.creative.y, 0, 60),
           w:clamp(Number(saved.creative && saved.creative.w) || base.creative.w, 12, 40)
         },
         mental:{
-          x:Number.isFinite(Number(saved.mental && saved.mental.x)) ? Number(saved.mental.x) : base.mental.x,
-          y:Number.isFinite(Number(saved.mental && saved.mental.y)) ? Number(saved.mental.y) : base.mental.y,
+          x:clamp(Number.isFinite(Number(saved.mental && saved.mental.x)) ? Number(saved.mental.x) : base.mental.x, 0, 77),
+          y:clamp(Number.isFinite(Number(saved.mental && saved.mental.y)) ? Number(saved.mental.y) : base.mental.y, 0, 60),
           w:clamp(Number(saved.mental && saved.mental.w) || base.mental.w, 12, 40)
         }
       };
       return map.taskColumns || base;
     }
     function defaultSidebarPosition(){
-      const width = window.innerWidth >= 1024 && window.innerWidth <= 1366 ? 278 : 312;
       return {
-        x:Math.max(12, window.innerWidth - width - 16),
-        y:window.innerWidth >= 1024 && window.innerWidth <= 1366 ? 10 : 16
+        x:1082.79296875,
+        y:287.6875
       };
     }
     function normalizeSidebarPosition(pos){
@@ -2973,6 +3008,15 @@
     }
     function syncDefaultHotspots(map){
       if (!map) return;
+      if (!Array.isArray(map.hotspots) || !map.hotspots.length) {
+        map.hotspots = cloneDefaultHotspots();
+      } else {
+        map.hotspots = map.hotspots.map((spot) => ({
+          ...spot,
+          hidden:!!spot.hidden
+        }));
+      }
+      return;
       const existing = Array.isArray(map.hotspots) ? map.hotspots.filter((spot) => !REMOVED_DEFAULT_HOTSPOTS.includes(spot.id)) : [];
       const merged = DEFAULT_HOTSPOTS.map((base) => {
         const saved = existing.find((spot) => spot.id === base.id);
@@ -3152,7 +3196,7 @@
       mapImageData = map ? (map.imageData || DEFAULT_MAIN_MAP_IMAGE) : DEFAULT_MAIN_MAP_IMAGE;
       if (mapImageData) {
         const showBoard = () => {
-          els.mapC.style.minHeight = '0';
+          els.mapC.style.minHeight = '100vh';
           els.mapImg.style.display = 'none';
           els.bannerMask.style.display = 'none';
           els.loadOverlay.style.display = 'none';
@@ -3177,7 +3221,7 @@
         els.mapImg.src = mapImageData;
         if (els.mapImg.complete && els.mapImg.naturalWidth > 0) showBoard();
       } else {
-        els.mapC.style.minHeight = '';
+        els.mapC.style.minHeight = '100vh';
         els.mapImg.removeAttribute('src');
         els.mapImg.style.display = 'none';
         els.bannerMask.style.display = 'none';
@@ -3218,6 +3262,11 @@
       els.taskLayoutBtn.textContent = 'Edit';
       els.taskLayoutBtn.title = 'Open board editor';
       els.taskLayoutBtn.setAttribute('aria-label', 'Open board editor');
+      if (els.layoutToggleBtn) {
+        els.layoutToggleBtn.textContent = 'Layout';
+        els.layoutToggleBtn.title = taskLayoutEdit ? 'Lock board layout' : 'Move board items';
+        els.layoutToggleBtn.setAttribute('aria-label', els.layoutToggleBtn.title);
+      }
       positionTaskLayoutButton();
     }
     function positionTaskLayoutButton(){
@@ -3231,6 +3280,10 @@
       const imageLeft = Math.max(0, (viewportW - imageWidth) / 2);
       els.taskLayoutBtn.style.left = `${imageLeft + 14}px`;
       els.taskLayoutBtn.style.top = '14px';
+      if (els.layoutToggleBtn) {
+        els.layoutToggleBtn.style.left = `${imageLeft + imageWidth - 126}px`;
+        els.layoutToggleBtn.style.top = '14px';
+      }
     }
     function renderTeamEditorToggle(){
       if (!els.leaderboardEditor || !els.teamEditToggleBtn) return;
@@ -3518,6 +3571,7 @@
       players = Array.isArray(data.players) ? data.players.map((p) => ({
         id:p.id,
         name:p.name,
+        emoji:normalizeTeamEmoji(p.emoji),
         members:normalizeTeamMembers(p.members),
         color:p.color,
         score:Number(p.score) || 0,
@@ -3683,6 +3737,7 @@
       const player = {
         id:'p' + pidCounter++,
         name,
+        emoji:'🏷️',
         members:[],
         color:selectedColor,
         score:0,
@@ -3710,9 +3765,10 @@
         const conditions = ensureConditionBucket(p.id);
         row.className = 'prow';
         row.style.borderColor = hexToRgba(p.color, 0.72);
-        row.style.background = `linear-gradient(135deg, ${hexToRgba(p.color, 0.42)} 0%, ${hexToRgba(p.color, 0.22)} 32%, rgba(18,12,18,0.94) 100%)`;
+        row.style.background = p.color;
         row.innerHTML = `
           <div class="teamMain">
+            <div class="teamBadge">${escapeHtml(p.emoji || '🏷️')}</div>
             <div class="teamLeft">
               <div class="teamTop">
                 <div class="teamNameInput">${escapeHtml(p.name)}</div>
@@ -3753,6 +3809,7 @@
         card.style.borderColor = hexToRgba(team.color, 0.5);
         card.innerHTML = `
           <div class="teamManageTop">
+            <button type="button" class="memberEmojiBtn" data-act="pick-team-emoji">${escapeHtml(team.emoji || '🏷️')}</button>
             <input class="teamNameInput" type="text" value="${escapeAttr(team.name)}" aria-label="Team name">
             <button type="button" class="miniBtn" data-act="remove-team">✕</button>
           </div>
@@ -3776,9 +3833,17 @@
           </div>
         `;
         const nameInput = card.querySelector('.teamNameInput');
+        const teamEmojiBtn = card.querySelector('[data-act="pick-team-emoji"]');
         const emojiBtn = card.querySelector('[data-act="pick-emoji"]');
         const draftInput = card.querySelector('.memberNameDraft');
         let chosenEmoji = '🙂';
+        teamEmojiBtn.addEventListener('click', (ev) => toggleEmojiPicker(ev.currentTarget, (emoji) => {
+          pushHistory('Edit team emoji');
+          team.emoji = emoji;
+          renderPlayers();
+          renderTeamManager();
+          scheduleSave();
+        }, PEOPLE_EMOJIS));
         nameInput.addEventListener('focus', () => pushHistory('Edit team name'), { once:true });
         nameInput.addEventListener('input', () => {
           team.name = nameInput.value;
@@ -3959,7 +4024,7 @@
           next.x = clamp(taskColumnDrag.originX + dxPct, -8, 88);
           next.y = clamp(taskColumnDrag.originY + dyPct, -8, 72);
         }
-        const liveCol = els.hotspotEditor && els.hotspotEditor.querySelector(`[data-column-key="${taskColumnDrag.key}"]`);
+        const liveCol = els.taskBoardLayer && els.taskBoardLayer.querySelector(`[data-column-key="${taskColumnDrag.key}"]`);
         if (liveCol) {
           liveCol.style.left = `${next.x}%`;
           liveCol.style.top = `${next.y}%`;
@@ -3984,7 +4049,7 @@
         return;
       }
       if (taskColumnDrag) {
-        const liveCol = els.hotspotEditor && els.hotspotEditor.querySelector(`[data-column-key="${taskColumnDrag.key}"]`);
+        const liveCol = els.taskBoardLayer && els.taskBoardLayer.querySelector(`[data-column-key="${taskColumnDrag.key}"]`);
         if (liveCol) liveCol.classList.remove('dragging');
         if (taskColumnDrag.moved) {
           scheduleSave();
@@ -5808,7 +5873,7 @@
       const wrap = document.createElement('div');
       wrap.className = 'taskCardGrid';
       const map = currentMap();
-      const taskColumns = ensureTaskColumns(map);
+      const taskColumns = taskLayoutEdit ? ensureTaskColumns(map) : defaultTaskColumns();
       const visibleSpots = currentHotspots().filter((spot) => {
         const text = [spot.tip, spot.sub, spot.id].join(' ').toLowerCase();
         if (filterSearch && !matchesSearch(text)) return false;
@@ -6009,16 +6074,11 @@
     }
     function renderCardEditorPanel(){
       if (!els.cardEditPanel) return;
-      if (!taskLayoutEdit) {
-        els.cardEditPanel.innerHTML = '';
-        return;
-      }
       mountBoardCardEditor(els.cardEditPanel);
     }
     function renderInlineHotspotEditor(){
-      if (!els.hotspotEditor) return;
-      mountHotspotEditor(els.hotspotEditor, false);
-      renderCardEditorPanel();
+      if (!els.taskBoardLayer) return;
+      mountHotspotEditor(els.taskBoardLayer, false);
     }
     function renderHotspotEditor(){
       mountHotspotEditor(els.adminContent, true);
@@ -6327,7 +6387,7 @@
     els.manualSaveBtn.addEventListener('click', saveNow);
     if (els.leaderboardDragHandle && els.sidebar) {
       els.leaderboardDragHandle.addEventListener('pointerdown', (e) => {
-        if (window.innerWidth <= 1100 || e.button !== 0 || e.target.closest('button')) return;
+        if (window.innerWidth <= 1100 || !taskLayoutEdit || e.button !== 0 || e.target.closest('button')) return;
         const rect = els.sidebar.getBoundingClientRect();
         sidebarDrag = {
           startX:e.clientX,
@@ -6344,6 +6404,7 @@
       });
     }
     if (els.taskLayoutBtn) els.taskLayoutBtn.addEventListener('click', openCardEditor);
+    if (els.layoutToggleBtn) els.layoutToggleBtn.addEventListener('click', toggleTaskLayoutEdit);
     if (els.layoutInfoBtn) els.layoutInfoBtn.addEventListener('click', openLayoutInfo);
     if (els.teamEditToggleBtn) els.teamEditToggleBtn.addEventListener('click', toggleTeamEditor);
     els.importBtn.addEventListener('click', () => els.importFile.click());
