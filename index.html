@@ -2727,17 +2727,17 @@
         physical:{
           x:clamp(Number.isFinite(Number(saved.physical && saved.physical.x)) ? Number(saved.physical.x) : base.physical.x, 0, 77),
           y:clamp(Number.isFinite(Number(saved.physical && saved.physical.y)) ? Number(saved.physical.y) : base.physical.y, 0, 60),
-          w:clamp(Number(saved.physical && saved.physical.w) || base.physical.w, 12, 40)
+          w:base.physical.w
         },
         creative:{
           x:clamp(Number.isFinite(Number(saved.creative && saved.creative.x)) ? Number(saved.creative.x) : base.creative.x, 0, 77),
           y:clamp(Number.isFinite(Number(saved.creative && saved.creative.y)) ? Number(saved.creative.y) : base.creative.y, 0, 60),
-          w:clamp(Number(saved.creative && saved.creative.w) || base.creative.w, 12, 40)
+          w:base.creative.w
         },
         mental:{
           x:clamp(Number.isFinite(Number(saved.mental && saved.mental.x)) ? Number(saved.mental.x) : base.mental.x, 0, 77),
           y:clamp(Number.isFinite(Number(saved.mental && saved.mental.y)) ? Number(saved.mental.y) : base.mental.y, 0, 60),
-          w:clamp(Number(saved.mental && saved.mental.w) || base.mental.w, 12, 40)
+          w:base.mental.w
         }
       };
       return map.taskColumns || base;
