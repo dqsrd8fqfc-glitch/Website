@@ -22,8 +22,8 @@
       font-family:"Avenir Next","Gill Sans","Trebuchet MS",sans-serif;
       color:var(--text);
       background:
-        url('https://dqsrd8fqfc-glitch.github.io/Website/Image.png') center center / cover no-repeat fixed,
-        #751627;
+        url('https://dqsrd8fqfc-glitch.github.io/Website/Image.png') center top / contain no-repeat fixed,
+        #000;
     }
     button,input,textarea,select{font:inherit;max-width:100%}
     button{
@@ -159,25 +159,37 @@
       line-height:1;
     }
     .mapGhostBtn{
-      position:absolute;
-      top:8px;
-      right:8px;
-      z-index:8;
-      opacity:.01;
-      background:transparent;
-      border-color:transparent;
-      box-shadow:none;
+      position:fixed;
+      top:14px;
+      left:14px;
+      width:auto;
+      min-width:0;
+      height:44px;
+      padding:0 14px;
+      z-index:30;
+      opacity:.82;
+      background:rgba(13,9,11,.72);
+      border-color:rgba(245,200,66,.28);
+      box-shadow:0 10px 24px rgba(0,0,0,.24);
+      pointer-events:auto;
+      touch-action:manipulation;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      font-size:15px;
+      font-weight:700;
     }
     .mapGhostBtn.left{
-      left:8px;
+      left:14px;
       right:auto;
     }
     .mapGhostBtn:hover,
     .mapGhostBtn:focus-visible,
     body.taskLayoutEdit .mapGhostBtn{
-      opacity:.18;
-      background:rgba(255,218,140,.08);
-      border-color:rgba(245,200,66,.18);
+      opacity:1;
+      background:rgba(255,218,140,.12);
+      border-color:rgba(245,200,66,.4);
     }
     .mapToolsPanel{
       margin-top:14px;
@@ -2119,7 +2131,7 @@
     <div class="layout">
       <div class="mapCol">
         <div id="mapC">
-          <button id="taskLayoutBtn" class="iconBtn mapGhostBtn left" type="button" title="Arrange task columns" aria-label="Arrange task columns">↔</button>
+          <button id="taskLayoutBtn" class="mapGhostBtn left" type="button" title="Arrange task columns" aria-label="Arrange task columns">Edit Layout</button>
           <img id="mapImg" alt="" src="https://dqsrd8fqfc-glitch.github.io/Website/Image.png" aria-hidden="true">
           <div id="bannerMask"></div>
           <div id="hotspotLayer"></div>
@@ -3200,7 +3212,7 @@
     function renderTaskLayoutButton(){
       if (!els.taskLayoutBtn) return;
       els.body.classList.toggle('taskLayoutEdit', taskLayoutEdit);
-      els.taskLayoutBtn.textContent = taskLayoutEdit ? '🔓' : '↔';
+      els.taskLayoutBtn.textContent = taskLayoutEdit ? 'Lock Layout' : 'Edit Layout';
       els.taskLayoutBtn.title = taskLayoutEdit ? 'Lock task columns' : 'Arrange task columns';
       els.taskLayoutBtn.setAttribute('aria-label', els.taskLayoutBtn.title);
     }
