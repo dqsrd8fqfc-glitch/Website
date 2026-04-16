@@ -162,15 +162,16 @@
       position:fixed;
       top:14px;
       left:14px;
-      width:auto;
-      min-width:0;
-      height:44px;
-      padding:0 14px;
-      z-index:30;
-      opacity:.82;
-      background:rgba(13,9,11,.72);
-      border-color:rgba(245,200,66,.28);
-      box-shadow:0 10px 24px rgba(0,0,0,.24);
+      width:112px;
+      min-width:112px;
+      height:64px;
+      padding:0;
+      z-index:80;
+      opacity:.01;
+      background:transparent;
+      color:transparent;
+      border-color:transparent;
+      box-shadow:none;
       pointer-events:auto;
       touch-action:manipulation;
       display:inline-flex;
@@ -187,9 +188,9 @@
     .mapGhostBtn:hover,
     .mapGhostBtn:focus-visible,
     body.taskLayoutEdit .mapGhostBtn{
-      opacity:1;
-      background:rgba(255,218,140,.12);
-      border-color:rgba(245,200,66,.4);
+      opacity:.08;
+      background:rgba(255,218,140,.08);
+      border-color:rgba(245,200,66,.14);
     }
     .mapToolsPanel{
       margin-top:14px;
@@ -400,8 +401,8 @@
     #hotspotLayer{z-index:3}
     #hotspotEditor{
       position:absolute;
-      inset:18% 8% 8% 8%;
-      z-index:3;
+      inset:0;
+      z-index:12;
       pointer-events:none;
       overflow:visible;
     }
@@ -1662,6 +1663,7 @@
     .taskColumnGrid{
       position:relative;
       height:100%;
+      min-height:100%;
     }
     .taskColumn{
       position:relative;
@@ -3154,6 +3156,7 @@
           els.mapImg.style.display = 'none';
           els.bannerMask.style.display = 'none';
           els.loadOverlay.style.display = 'none';
+          positionTaskLayoutButton();
           buildHotspots();
           renderInlineHotspotEditor();
           renderAnnotations();
@@ -3212,9 +3215,22 @@
     function renderTaskLayoutButton(){
       if (!els.taskLayoutBtn) return;
       els.body.classList.toggle('taskLayoutEdit', taskLayoutEdit);
-      els.taskLayoutBtn.textContent = taskLayoutEdit ? 'Lock Layout' : 'Edit Layout';
-      els.taskLayoutBtn.title = taskLayoutEdit ? 'Lock task columns' : 'Arrange task columns';
-      els.taskLayoutBtn.setAttribute('aria-label', els.taskLayoutBtn.title);
+      els.taskLayoutBtn.textContent = 'Edit';
+      els.taskLayoutBtn.title = 'Open board editor';
+      els.taskLayoutBtn.setAttribute('aria-label', 'Open board editor');
+      positionTaskLayoutButton();
+    }
+    function positionTaskLayoutButton(){
+      if (!els.taskLayoutBtn) return;
+      const naturalW = els.mapImg && els.mapImg.naturalWidth ? els.mapImg.naturalWidth : 1536;
+      const naturalH = els.mapImg && els.mapImg.naturalHeight ? els.mapImg.naturalHeight : 1024;
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+      const scale = Math.min(viewportW / naturalW, viewportH / naturalH);
+      const imageWidth = naturalW * scale;
+      const imageLeft = Math.max(0, (viewportW - imageWidth) / 2);
+      els.taskLayoutBtn.style.left = `${imageLeft + 14}px`;
+      els.taskLayoutBtn.style.top = '14px';
     }
     function renderTeamEditorToggle(){
       if (!els.leaderboardEditor || !els.teamEditToggleBtn) return;
@@ -3726,7 +3742,11 @@
     }
     function renderTeamManager(){
       if (!els.teamManagerList) return;
-      els.teamManagerList.innerHTML = '';
+      mountTeamManagerList(els.teamManagerList);
+    }
+    function mountTeamManagerList(target){
+      if (!target) return;
+      target.innerHTML = '';
       players.forEach((team) => {
         const card = document.createElement('div');
         card.className = 'teamManageCard';
@@ -3797,7 +3817,7 @@
           btn.addEventListener('click', () => removeTeamMember(team.id, Number(btn.dataset.memberRemove)));
         });
         card.querySelector('[data-act="remove-team"]').addEventListener('click', () => removePlayer(team.id));
-        els.teamManagerList.appendChild(card);
+        target.appendChild(card);
       });
     }
     function renderNPCList(){}
@@ -5477,17 +5497,13 @@
       });
     }
 
-    function openAdmin(){
+    function openAdmin(tab){
+      if (tab) activeAdminTab = tab;
       els.adminOverlay.style.display = 'flex';
       renderAdmin();
     }
     function openCardEditor(){
-      if (!taskLayoutEdit) {
-        taskLayoutEdit = true;
-        renderTaskLayoutButton();
-      }
-      renderInlineHotspotEditor();
-      if (els.cardEditPanel) els.cardEditPanel.scrollIntoView({ behavior:'smooth', block:'start' });
+      openAdmin('TEAMS');
     }
     function closeAdmin(){
       els.adminOverlay.style.display = 'none';
@@ -5495,16 +5511,9 @@
     }
     function adminTabs(){
       return [
-        ['RUN','Run Session',0],
-        ['DRINKS','Scoring',DRINKS.length],
-        ['NOMS','Assignments',NOMS.length],
-        ['SOCIALS','Group Tasks',SOCIALS.length],
-        ['HOTSEATS','Spotlight',HOTSEATS.length],
-        ['CHALLENGES','Duels',CHALLENGES.length],
-        ['CURSES','Handicaps',CURSES.length],
-        ['GAMES','Mini Tasks',GAMES.length],
-        ['ITEMS','Advantages',ITEMS.length],
-        ['ANNOTATIONS','Annotations',currentAnnotations().length]
+        ['TEAMS','Teams',players.length],
+        ['CARDS','Cards',currentHotspots().length],
+        ['POSITIONS','Positions',0]
       ];
     }
     function matchesSearch(text){
@@ -5512,13 +5521,10 @@
       return text.toLowerCase().includes(adminSearch.toLowerCase());
     }
     function renderAdmin(){
-      els.runModeBtn.classList.toggle('active', adminMode === 'run');
-      els.editModeBtn.classList.toggle('active', adminMode === 'edit');
-      els.adminHint.textContent = adminMode === 'run'
-        ? 'Live controls for tonight on the left, deeper task editing on the right.'
-        : 'Editing mode lets you reshape decks, teams, and clues.';
+      if (els.runModeBtn && els.runModeBtn.parentElement) els.runModeBtn.parentElement.style.display = 'none';
+      els.adminHint.textContent = 'Use these tabs to manage teams, cards, and saved positions.';
       els.adminTabs.innerHTML = '';
-      const tabs = adminTabs().filter(([key]) => adminMode === 'run' ? key === 'RUN' || key === 'ANNOTATIONS' : key !== 'RUN');
+      const tabs = adminTabs();
       if (!tabs.some(([key]) => key === activeAdminTab)) activeAdminTab = tabs[0][0];
       tabs.forEach(([key, label, count]) => {
         const btn = document.createElement('button');
@@ -5532,9 +5538,90 @@
         els.adminTabs.appendChild(btn);
       });
       els.adminContent.innerHTML = '';
-      if (activeAdminTab === 'RUN') return renderRunDashboard();
-      if (activeAdminTab === 'ANNOTATIONS') return renderAnnotationEditor();
-      renderDeckEditor(activeAdminTab);
+      if (activeAdminTab === 'TEAMS') return renderAdminTeamsEditor();
+      if (activeAdminTab === 'CARDS') return renderAdminCardsEditor();
+      if (activeAdminTab === 'POSITIONS') return renderPositionsEditor();
+    }
+    function renderAdminTeamsEditor(){
+      const wrap = document.createElement('div');
+      wrap.className = 'editGrid';
+      wrap.innerHTML = `
+        <div class="runCard">
+          <h3>Teams</h3>
+          <div class="playerAdd" style="margin-bottom:12px">
+            <input id="adminTeamName" placeholder="Add a team">
+            <button id="adminAddTeamBtn" type="button">Add</button>
+          </div>
+          <div id="adminColorRow" class="colorRow"></div>
+        </div>
+        <div id="adminTeamManagerMount" class="teamManagerList"></div>
+      `;
+      els.adminContent.appendChild(wrap);
+      const colorMount = wrap.querySelector('#adminColorRow');
+      PLAYER_COLORS.forEach(([label, color]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'swatch' + (selectedColor === color ? ' sel' : '');
+        btn.style.background = color;
+        btn.setAttribute('aria-label', label);
+        btn.addEventListener('click', () => {
+          selectedColor = color;
+          renderAdmin();
+        });
+        colorMount.appendChild(btn);
+      });
+      const addInput = wrap.querySelector('#adminTeamName');
+      const addNow = () => {
+        if (!addInput.value.trim()) return;
+        els.playerName.value = addInput.value;
+        addPlayer();
+        addInput.value = '';
+        addInput.focus();
+        renderAdmin();
+      };
+      wrap.querySelector('#adminAddTeamBtn').addEventListener('click', addNow);
+      addInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addNow();
+      });
+      mountTeamManagerList(wrap.querySelector('#adminTeamManagerMount'));
+    }
+    function renderAdminCardsEditor(){
+      mountBoardCardEditor(els.adminContent);
+    }
+    function renderPositionsEditor(){
+      const map = currentMap();
+      const cols = ensureTaskColumns(map);
+      const positionData = {
+        leaderboard: sidebarPosition,
+        columns: cols
+      };
+      const wrap = document.createElement('div');
+      wrap.className = 'editGrid';
+      wrap.innerHTML = `
+        <div class="runCard">
+          <h3>Floating Positions</h3>
+          <p class="tiny">These are the current saved positions for the movable items on the board.</p>
+          <div class="revealCard"><pre style="margin:0;white-space:pre-wrap;">${escapeHtml(JSON.stringify(positionData, null, 2))}</pre></div>
+          <div class="smallActions">
+            <button type="button" id="openBoardLayoutBtn">${taskLayoutEdit ? 'Lock Board Layout' : 'Edit Board Layout'}</button>
+            <button type="button" id="copyPositionsBtn">Copy Positions</button>
+          </div>
+        </div>
+      `;
+      els.adminContent.appendChild(wrap);
+      wrap.querySelector('#openBoardLayoutBtn').addEventListener('click', () => {
+        taskLayoutEdit = !taskLayoutEdit;
+        renderTaskLayoutButton();
+        renderInlineHotspotEditor();
+        closeAdmin();
+      });
+      wrap.querySelector('#copyPositionsBtn').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(positionData, null, 2));
+        } catch (err) {
+          openModal(`<div class="modalCard"><h3>Positions</h3><div class="revealCard"><pre style="margin:0;white-space:pre-wrap;">${escapeHtml(JSON.stringify(positionData, null, 2))}</pre></div></div>`);
+        }
+      });
     }
     function renderRunDashboard(){
       const wrap = document.createElement('div');
@@ -5825,19 +5912,15 @@
       wrap.appendChild(colGrid);
       target.appendChild(wrap);
     }
-    function renderCardEditorPanel(){
-      if (!els.cardEditPanel) return;
-      if (!taskLayoutEdit) {
-        els.cardEditPanel.innerHTML = '';
-        return;
-      }
+    function mountBoardCardEditor(target){
+      if (!target) return;
       const cards = currentHotspots();
       const groups = {
         physical:cards.filter((card) => taskColumnKey(card) === 'physical'),
         creative:cards.filter((card) => taskColumnKey(card) === 'creative'),
         mental:cards.filter((card) => taskColumnKey(card) === 'mental')
       };
-      els.cardEditPanel.innerHTML = `
+      target.innerHTML = `
         <div class="cardEditGrid">
           <section class="cardEditColumn" data-column="physical">
             <h3>Physical</h3>
@@ -5857,7 +5940,7 @@
         </div>
       `;
       Object.entries(groups).forEach(([column, list]) => {
-        const mount = els.cardEditPanel.querySelector(`[data-column="${column}"] [data-role="list"]`);
+        const mount = target.querySelector(`[data-column="${column}"] [data-role="list"]`);
         list.forEach((card) => {
           const row = document.createElement('div');
           row.className = 'editCard';
@@ -5901,7 +5984,7 @@
           mount.appendChild(row);
         });
       });
-      els.cardEditPanel.querySelectorAll('[data-add-column]').forEach((btn) => {
+      target.querySelectorAll('[data-add-column]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const column = btn.dataset.addColumn;
           pushHistory('Add board card');
@@ -5923,6 +6006,14 @@
           scheduleSave();
         });
       });
+    }
+    function renderCardEditorPanel(){
+      if (!els.cardEditPanel) return;
+      if (!taskLayoutEdit) {
+        els.cardEditPanel.innerHTML = '';
+        return;
+      }
+      mountBoardCardEditor(els.cardEditPanel);
     }
     function renderInlineHotspotEditor(){
       if (!els.hotspotEditor) return;
@@ -6252,7 +6343,7 @@
         e.preventDefault();
       });
     }
-    if (els.taskLayoutBtn) els.taskLayoutBtn.addEventListener('click', toggleTaskLayoutEdit);
+    if (els.taskLayoutBtn) els.taskLayoutBtn.addEventListener('click', openCardEditor);
     if (els.layoutInfoBtn) els.layoutInfoBtn.addEventListener('click', openLayoutInfo);
     if (els.teamEditToggleBtn) els.teamEditToggleBtn.addEventListener('click', toggleTeamEditor);
     els.importBtn.addEventListener('click', () => els.importFile.click());
@@ -6287,7 +6378,10 @@
       adminSearch = els.adminSearch.value.trim();
       renderAdmin();
     });
-    window.addEventListener('resize', renderSidebarPosition);
+    window.addEventListener('resize', () => {
+      renderSidebarPosition();
+      positionTaskLayoutButton();
+    });
 
     renderColorChoices();
     resetSessionBits();
