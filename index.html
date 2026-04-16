@@ -2742,6 +2742,7 @@
       };
       return map.taskColumns || base;
     }
+    const LAYOUT_VERSION = '3';
     function defaultSidebarPosition(){
       return {
         x:854,
@@ -3460,6 +3461,7 @@
       }));
         return {
           version:2,
+          layoutVersion:LAYOUT_VERSION,
         pubName,
         DRINKS, NOMS, SOCIALS, HOTSEATS, CHALLENGES, CURSES, GAMES, ITEMS,
         HOTSPOTS: currentHotspots().map((h) => ({
@@ -3604,7 +3606,12 @@
       });
       spotlight = data.spotlight || { type:'', id:'' };
       playerDisplay = !!data.playerDisplay;
-      sidebarPosition = normalizeSidebarPosition(defaultSidebarPosition());
+      if (data.layoutVersion === LAYOUT_VERSION) {
+        sidebarPosition = normalizeSidebarPosition(data.sidebarPosition || defaultSidebarPosition());
+      } else {
+        sidebarPosition = defaultSidebarPosition();
+        maps.forEach((m) => { if (m.taskColumns) delete m.taskColumns; });
+      }
       mapImageData = currentMap() && typeof currentMap().imageData === 'string'
         ? currentMap().imageData
         : (typeof data.mapImageData === 'string' ? data.mapImageData : '');
