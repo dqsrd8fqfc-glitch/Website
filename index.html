@@ -310,8 +310,8 @@
     .sidebar{
       width:248px;
       position:fixed;
-      top:255.5px;
-      left:836.5px;
+      top:242.5px;
+      left:854px;
       display:flex;
       flex-direction:column;
       gap:12px;
@@ -2093,8 +2093,8 @@
       }
       .sidebar{
         width:228px;
-        top:10px;
-        left:calc(100vw - 238px);
+        top:242.5px;
+        left:854px;
         gap:10px;
         max-height:calc(100vh - 20px);
         padding:0;
@@ -2594,7 +2594,7 @@
     let actionHistory = [];
     let redoHistory = [];
     let saveSuspended = false;
-    let sidebarPosition = { x:836.5, y:255.5 };
+    let sidebarPosition = { x:854, y:242.5 };
 
     const sessionState = {
       activeEffects:[],
@@ -2714,9 +2714,9 @@
     }
     function defaultTaskColumns(){
       return {
-        physical:{ x:10.591144025110697, y:47.326570713519715, w:16 },
-        creative:{ x:30.832668381691732, y:47.17642241740858, w:16 },
-        mental:{ x:51.049940915584344, y:46.9517859569111, w:16 }
+        physical:{ x:9.150466059009002, y:48.957360015541894, w:16 },
+        creative:{ x:30.45131244948834, y:48.937674863592534, w:16 },
+        mental:{ x:51.643161254567396, y:49.169659407661264, w:16 }
       };
     }
     function ensureTaskColumns(map){
@@ -2744,8 +2744,8 @@
     }
     function defaultSidebarPosition(){
       return {
-        x:836.5,
-        y:255.5
+        x:854,
+        y:242.5
       };
     }
     function normalizeSidebarPosition(pos){
