@@ -310,8 +310,8 @@
     .sidebar{
       width:248px;
       position:fixed;
-      top:297px;
-      left:1085px;
+      top:255.5px;
+      left:836.5px;
       display:flex;
       flex-direction:column;
       gap:12px;
@@ -1769,8 +1769,8 @@
       border:1px solid rgba(102,57,18,.38);
       border-radius:10px;
       background:linear-gradient(180deg, rgba(128,77,33,.96), rgba(92,52,20,.96));
-      min-height:38px;
-      padding:5px 8px;
+      min-height:30px;
+      padding:3px 8px;
       text-align:left;
       display:grid;
       grid-template-columns:auto 1fr;
@@ -2410,7 +2410,7 @@
 
     const HOTSPOTS = [
       { id:'tea_bags', left:20, top:50, emoji:'☕️', tip:'Tea Bags', sub:'Team that gets the most tea bags in the pot wins!', type:'draw', mode:'draw', coreAction:'', hidden:false, customCards:[] },
-      { id:'marching_on_the_spot', left:20, top:50, emoji:'🚶🏼‍➡️', tip:'Marching on the Spot', sub:'Pick 1 person from each team to march on the spot whilst a song plays. Closest to the spot wins!', type:'draw', mode:'draw', coreAction:'', hidden:false, customCards:[] },
+      { id:'marching_on_the_spot', left:20, top:50, emoji:'🚶🏼‍➡️', tip:'Marching Orders', sub:'Pick 1 person from each team to march on the spot whilst a song plays. Closest to the spot wins!', type:'draw', mode:'draw', coreAction:'', hidden:false, customCards:[] },
       { id:'card_house', left:20, top:50, emoji:'🃏', tip:'Card House', sub:'Build the tallest card house in 2 minutes. Tallest standing structure wins!', type:'draw', mode:'draw', coreAction:'', hidden:false, customCards:[] },
       { id:'book_balance', left:20, top:50, emoji:'🧱', tip:'Book Balance', sub:'Balance the most books on your head and take 5 steps. Most books carried successfully wins!', type:'draw', mode:'draw', coreAction:'', hidden:false, customCards:[] },
       { id:'sweet_sort', left:20, top:50, emoji:'🍬', tip:'Sweet Sort', sub:'Sort a pile of mixed sweets by colour as fast as possible. Fastest team wins!', type:'draw', mode:'draw', coreAction:'', hidden:false, customCards:[] },
@@ -2594,7 +2594,7 @@
     let actionHistory = [];
     let redoHistory = [];
     let saveSuspended = false;
-    let sidebarPosition = { x:1085.1875, y:297 };
+    let sidebarPosition = { x:836.5, y:255.5 };
 
     const sessionState = {
       activeEffects:[],
@@ -2714,9 +2714,9 @@
     }
     function defaultTaskColumns(){
       return {
-        physical:{ x:10.167415211551376, y:48.435507438894795, w:13 },
-        creative:{ x:30.790295500335798, y:48.6115170031881, w:13 },
-        mental:{ x:51.261805322364005, y:48.45211211477151, w:16 }
+        physical:{ x:10.591144025110697, y:47.326570713519715, w:16 },
+        creative:{ x:30.832668381691732, y:47.17642241740858, w:16 },
+        mental:{ x:51.049940915584344, y:46.9517859569111, w:16 }
       };
     }
     function ensureTaskColumns(map){
@@ -2744,8 +2744,8 @@
     }
     function defaultSidebarPosition(){
       return {
-        x:1085.1875,
-        y:297
+        x:836.5,
+        y:255.5
       };
     }
     function normalizeSidebarPosition(pos){
