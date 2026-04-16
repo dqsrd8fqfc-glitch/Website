@@ -16,7 +16,7 @@
       --glow:0 0 0 1px rgba(245,210,79,.18), 0 12px 28px rgba(0,0,0,.32);
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{height:100%;overflow:hidden}
     body{
       margin:0;
       font-family:"Avenir Next","Gill Sans","Trebuchet MS",sans-serif;
@@ -48,9 +48,10 @@
     textarea{min-height:90px;resize:vertical}
     .page{
       width:100%;
-      min-height:100vh;
+      height:100vh;
       margin:0;
       padding:0;
+      overflow:hidden;
     }
     .pubName{
       margin:0 0 14px;
@@ -78,7 +79,8 @@
       display:flex;
       gap:0;
       align-items:flex-start;
-      min-height:100vh;
+      height:100vh;
+      overflow:hidden;
     }
     .initiativeBar{
       display:flex;
@@ -139,7 +141,13 @@
       background:linear-gradient(180deg,#f0c338,#9f1c2e);
       box-shadow:0 0 0 1px rgba(245,200,66,.35);
     }
-    .mapCol{flex:1;min-width:0}
+    .mapCol{
+      flex:1;
+      min-width:0;
+      position:relative;
+      height:100vh;
+      overflow:hidden;
+    }
     .iconBtn{
       min-width:40px;
       width:40px;
@@ -284,17 +292,24 @@
     }
     .sidebar{
       width:312px;
-      position:sticky;
+      position:fixed;
       top:16px;
+      left:calc(100vw - 328px);
       display:flex;
       flex-direction:column;
       gap:12px;
       max-height:calc(100vh - 32px);
       overflow:auto;
-      padding:16px 16px 16px 0;
-      margin-left:auto;
-      margin-right:16px;
-      z-index:10;
+      padding:0;
+      margin:0;
+      z-index:20;
+    }
+    .dragHandle{
+      cursor:grab;
+      touch-action:none;
+    }
+    .dragHandle.dragging{
+      cursor:grabbing;
     }
     .panel{
       background:linear-gradient(180deg, rgba(111,19,37,.96), rgba(25,12,22,.96));
@@ -1745,16 +1760,21 @@
     }
     .cardEditPanel{
       display:none;
-      margin-top:14px;
+      position:fixed;
+      left:16px;
+      right:344px;
+      bottom:16px;
+      max-height:min(42vh, 420px);
+      overflow:auto;
+      margin:0;
       padding:14px;
       border:1px solid rgba(245,200,66,.14);
       border-radius:16px;
       background:linear-gradient(180deg, rgba(111,19,37,.96), rgba(25,12,22,.96));
       box-shadow:var(--shadow);
-      width:min(1080px, calc(100vw - 48px));
-      max-width:calc(100vw - 48px);
-      margin-left:auto;
-      margin-right:auto;
+      width:auto;
+      max-width:none;
+      z-index:18;
     }
     body.taskLayoutEdit .cardEditPanel{
       display:block;
@@ -1956,8 +1976,17 @@
       .sidebar{
         width:100%;
         position:static;
+        left:auto;
         max-height:none;
         overflow:visible;
+      }
+      .cardEditPanel{
+        position:static;
+        left:auto;
+        right:auto;
+        bottom:auto;
+        max-height:none;
+        margin-top:14px;
       }
       .runGrid{grid-template-columns:1fr}
     }
@@ -2013,10 +2042,11 @@
       .sidebar{
         width:278px;
         top:10px;
+        left:calc(100vw - 288px);
         gap:10px;
         max-height:calc(100vh - 20px);
-        padding:10px 10px 10px 0;
-        margin-right:10px;
+        padding:0;
+        margin:0;
       }
       .panelHead{
         padding:10px 12px 6px;
@@ -2047,8 +2077,7 @@
         font-size:18px;
       }
       .cardEditPanel{
-        width:min(940px, calc(100vw - 320px));
-        max-width:calc(100vw - 320px);
+        right:294px;
       }
       .taskModalCard{
         min-height:60vh;
@@ -2090,7 +2119,7 @@
     <div class="layout">
       <div class="mapCol">
         <div id="mapC">
-          <button id="taskLayoutBtn" class="iconBtn mapGhostBtn" type="button" title="Arrange task columns" aria-label="Arrange task columns">↔</button>
+          <button id="taskLayoutBtn" class="iconBtn mapGhostBtn left" type="button" title="Arrange task columns" aria-label="Arrange task columns">↔</button>
           <img id="mapImg" alt="" src="https://dqsrd8fqfc-glitch.github.io/Website/Image.png" aria-hidden="true">
           <div id="bannerMask"></div>
           <div id="hotspotLayer"></div>
@@ -2112,9 +2141,9 @@
         </div>
 
         <div id="sessionTab" class="sideTab active">
-          <section class="panel">
+          <section id="leaderboardPanel" class="panel">
             <div class="panelBody">
-              <div class="panelHead">
+              <div id="leaderboardDragHandle" class="panelHead dragHandle">
                 <h2>Leaderboard</h2>
                 <div class="smallActions tight">
                   <button id="layoutInfoBtn" class="miniIconBtn" type="button" title="Layout info" aria-label="Layout info">i</button>
@@ -2452,6 +2481,9 @@
       layoutInfoBtn:document.getElementById('layoutInfoBtn'),
       teamEditToggleBtn:document.getElementById('teamEditToggleBtn'),
       leaderboardEditor:document.getElementById('leaderboardEditor'),
+      sidebar:document.querySelector('.sidebar'),
+      leaderboardPanel:document.getElementById('leaderboardPanel'),
+      leaderboardDragHandle:document.getElementById('leaderboardDragHandle'),
       playerAdder:document.getElementById('playerAdder'),
       teamManagerList:document.getElementById('teamManagerList'),
       hotspotEditor:document.getElementById('hotspotEditor'),
@@ -2512,9 +2544,11 @@
     let teamEditOpen = false;
     let spotlight = { type:'', id:'' };
     let taskColumnDrag = null;
+    let sidebarDrag = null;
     let actionHistory = [];
     let redoHistory = [];
     let saveSuspended = false;
+    let sidebarPosition = { x:null, y:16 };
 
     const sessionState = {
       activeEffects:[],
@@ -2657,6 +2691,34 @@
         }
       };
       return map.taskColumns || base;
+    }
+    function defaultSidebarPosition(){
+      const width = window.innerWidth >= 1024 && window.innerWidth <= 1366 ? 278 : 312;
+      return {
+        x:Math.max(12, window.innerWidth - width - 16),
+        y:window.innerWidth >= 1024 && window.innerWidth <= 1366 ? 10 : 16
+      };
+    }
+    function normalizeSidebarPosition(pos){
+      const base = defaultSidebarPosition();
+      const width = els.sidebar ? els.sidebar.offsetWidth || (window.innerWidth >= 1024 && window.innerWidth <= 1366 ? 278 : 312) : 312;
+      const height = els.sidebar ? Math.min(els.sidebar.scrollHeight || 0, window.innerHeight - 12) : 0;
+      return {
+        x:clamp(Number(pos && pos.x), 8, Math.max(8, window.innerWidth - width - 8)) || base.x,
+        y:clamp(Number(pos && pos.y), 8, Math.max(8, window.innerHeight - Math.max(height, 200) - 8)) || base.y
+      };
+    }
+    function renderSidebarPosition(){
+      if (!els.sidebar) return;
+      if (window.innerWidth <= 1100) {
+        els.sidebar.style.left = '';
+        els.sidebar.style.top = '';
+        return;
+      }
+      const next = normalizeSidebarPosition(sidebarPosition);
+      sidebarPosition = next;
+      els.sidebar.style.left = `${next.x}px`;
+      els.sidebar.style.top = `${next.y}px`;
     }
     function normalizeHotspot(spot){
       if (typeof spot.hidden !== 'boolean') spot.hidden = false;
@@ -3340,7 +3402,8 @@
         activeMapId,
         sessionState: plainClone(sessionState),
         spotlight: plainClone(spotlight),
-        playerDisplay
+        playerDisplay,
+        sidebarPosition: plainClone(sidebarPosition)
       };
     }
     function saveToStorage(){
@@ -3461,6 +3524,7 @@
       });
       spotlight = data.spotlight || { type:'', id:'' };
       playerDisplay = !!data.playerDisplay;
+      sidebarPosition = normalizeSidebarPosition(data.sidebarPosition || defaultSidebarPosition());
       mapImageData = currentMap() && typeof currentMap().imageData === 'string'
         ? currentMap().imageData
         : (typeof data.mapImageData === 'string' ? data.mapImageData : '');
@@ -3476,6 +3540,7 @@
       renderLog();
       renderInitiative();
       renderSidebarTab();
+      renderSidebarPosition();
       if (els.adminOverlay.style.display === 'flex') renderAdmin();
       syncUndoRedo();
     }
@@ -3511,6 +3576,7 @@
       renderColorChoices();
       renderInitiative();
       renderSidebarTab();
+      renderSidebarPosition();
       renderTaskLayoutButton();
       renderTeamEditorToggle();
       applyPlayerView();
@@ -3840,6 +3906,14 @@
       });
     }
     document.addEventListener('pointermove', (e) => {
+      if (sidebarDrag) {
+        const nextX = clamp(sidebarDrag.originX + (e.clientX - sidebarDrag.startX), 8, Math.max(8, window.innerWidth - sidebarDrag.width - 8));
+        const nextY = clamp(sidebarDrag.originY + (e.clientY - sidebarDrag.startY), 8, Math.max(8, window.innerHeight - sidebarDrag.height - 8));
+        if (Math.abs(nextX - sidebarDrag.originX) > 1 || Math.abs(nextY - sidebarDrag.originY) > 1) sidebarDrag.moved = true;
+        sidebarPosition = { x:nextX, y:nextY };
+        renderSidebarPosition();
+        return;
+      }
       if (taskColumnDrag) {
         const map = currentMap();
         const taskColumns = ensureTaskColumns(map);
@@ -3871,6 +3945,12 @@
       drag.el.style.top = top + '%';
     });
     document.addEventListener('pointerup', () => {
+      if (sidebarDrag) {
+        if (els.leaderboardDragHandle) els.leaderboardDragHandle.classList.remove('dragging');
+        if (sidebarDrag.moved) scheduleSave();
+        sidebarDrag = null;
+        return;
+      }
       if (taskColumnDrag) {
         const liveCol = els.hotspotEditor && els.hotspotEditor.querySelector(`[data-column-key="${taskColumnDrag.key}"]`);
         if (liveCol) liveCol.classList.remove('dragging');
@@ -6142,6 +6222,24 @@
     els.closeAdminBtn.addEventListener('click', closeAdmin);
     els.exportBtn.addEventListener('click', exportSave);
     els.manualSaveBtn.addEventListener('click', saveNow);
+    if (els.leaderboardDragHandle && els.sidebar) {
+      els.leaderboardDragHandle.addEventListener('pointerdown', (e) => {
+        if (window.innerWidth <= 1100 || e.button !== 0 || e.target.closest('button')) return;
+        const rect = els.sidebar.getBoundingClientRect();
+        sidebarDrag = {
+          startX:e.clientX,
+          startY:e.clientY,
+          originX:rect.left,
+          originY:rect.top,
+          width:rect.width,
+          height:rect.height,
+          moved:false
+        };
+        els.leaderboardDragHandle.classList.add('dragging');
+        els.leaderboardDragHandle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+    }
     if (els.taskLayoutBtn) els.taskLayoutBtn.addEventListener('click', toggleTaskLayoutEdit);
     if (els.layoutInfoBtn) els.layoutInfoBtn.addEventListener('click', openLayoutInfo);
     if (els.teamEditToggleBtn) els.teamEditToggleBtn.addEventListener('click', toggleTeamEditor);
@@ -6177,6 +6275,7 @@
       adminSearch = els.adminSearch.value.trim();
       renderAdmin();
     });
+    window.addEventListener('resize', renderSidebarPosition);
 
     renderColorChoices();
     resetSessionBits();
