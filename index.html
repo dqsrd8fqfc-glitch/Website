@@ -718,6 +718,18 @@
       min-width:0;
       align-items:center;
     }
+    .teamNamesInput{
+      width:100%;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      font-size:11px;
+      border-radius:6px;
+      padding:4px 6px;
+      resize:none;
+      min-height:36px;
+      line-height:1.4;
+    }
     .teamBadge{
       width:30px;
       height:30px;
@@ -767,12 +779,12 @@
     }
     .teamScore strong{
       display:block;
-      font-size:15px;
+      font-size:26px;
       line-height:1;
       color:var(--gold);
     }
     .teamScore span{
-      display:block;
+      display:none;
       margin-top:1px;
       font-size:7px;
       letter-spacing:.16em;
@@ -793,7 +805,7 @@
     }
     .teamNameInput{
       font-weight:700;
-      font-size:13px;
+      font-size:17px;
       line-height:1.1;
     }
     .teamControls{
@@ -2427,10 +2439,10 @@
     const NPCS = [];
 
     const DEFAULT_TEAMS = [
-      { name:'Team Red', emoji:'❤️', color:'#d12c3f', members:[{ emoji:'😀', name:'Member 1' }, { emoji:'🎈', name:'Member 2' }] },
-      { name:'Team Blue', emoji:'💙', color:'#3a7bd5', members:[{ emoji:'😎', name:'Member 1' }, { emoji:'🎉', name:'Member 2' }] },
-      { name:'Team Gold', emoji:'⭐', color:'#d8a021', members:[{ emoji:'🥳', name:'Member 1' }, { emoji:'🌟', name:'Member 2' }] },
-      { name:'Team Green', emoji:'🍀', color:'#3f8f43', members:[{ emoji:'🎯', name:'Member 1' }, { emoji:'🍀', name:'Member 2' }] }
+      { name:'Team 1', emoji:'❤️', color:'#d12c3f', memberText:'' },
+      { name:'Team 2', emoji:'💙', color:'#3a7bd5', memberText:'' },
+      { name:'Team 3', emoji:'⭐', color:'#d8a021', memberText:'' },
+      { name:'Team 4', emoji:'🍀', color:'#3f8f43', memberText:'' }
     ];
 
     const DEFAULT_WHEEL_SEGMENTS = [
@@ -2645,7 +2657,8 @@
         id:'p' + (index + 1),
         name:team.name,
         emoji:team.emoji || '🏷️',
-        members:Array.isArray(team.members) ? team.members.map((member) => ({ ...member })) : [],
+        memberText:team.memberText || '',
+        members:[],
         color:team.color,
         score:0,
         thirst:8,
@@ -3773,18 +3786,11 @@
         row.style.background = p.color;
         row.innerHTML = `
           <div class="teamMain">
-            <div class="teamBadge">${escapeHtml(p.emoji || '🏷️')}</div>
             <div class="teamLeft">
               <div class="teamTop">
-                <div class="teamNameInput">${escapeHtml(p.name)}</div>
+                <div class="teamNameInput">${escapeHtml(p.emoji || '')} ${escapeHtml(p.name)}</div>
               </div>
-              ${(Array.isArray(p.members) && p.members.length) ? `<div class="memberChips">
-                ${(Array.isArray(p.members) ? p.members : []).map((member, memberIndex) => `
-                  <span class="memberChip">
-                    <span>${escapeHtml(member.emoji || '🙂')} ${escapeHtml(member.name || '')}</span>
-                  </span>
-                `).join('')}
-              </div>` : ''}
+              <textarea class="teamNamesInput" placeholder="No members added" rows="2" aria-label="Team members" readonly>${escapeHtml(p.memberText || '')}</textarea>
               ${conditions.length ? `<div class="chipWrap">${conditions.map((c) => `<span class="chip">${escapeHtml(c.icon || '✦')} ${escapeHtml(c.label)}</span>`).join('')}</div>` : ''}
             </div>
             <div class="teamRight">
@@ -3823,25 +3829,11 @@
               <button type="button" class="teamSwatch${team.color === color ? ' sel' : ''}" data-team-color="${escapeAttr(color)}" aria-label="${escapeAttr(label)}" style="background:${escapeAttr(color)}"></button>
             `).join('')}
           </div>
-          <div class="teamManageMembers">
-            ${(Array.isArray(team.members) ? team.members : []).map((member, index) => `
-              <span class="memberChip">
-                <span>${escapeHtml(member.emoji || '🙂')} ${escapeHtml(member.name || '')}</span>
-                <button type="button" class="remove" data-member-remove="${index}" aria-label="Remove member">✕</button>
-              </span>
-            `).join('')}
-          </div>
-          <div class="teamManageAdd">
-            <button type="button" class="memberEmojiBtn" data-act="pick-emoji">🙂</button>
-            <input type="text" class="memberNameDraft" placeholder="Add team member">
-            <button type="button" class="miniBtn" data-act="add-member">Add</button>
-          </div>
+          <textarea class="teamNamesInput" placeholder="Enter names..." rows="3" aria-label="Team members">${escapeHtml(team.memberText || '')}</textarea>
         `;
         const nameInput = card.querySelector('.teamNameInput');
         const teamEmojiBtn = card.querySelector('[data-act="pick-team-emoji"]');
-        const emojiBtn = card.querySelector('[data-act="pick-emoji"]');
-        const draftInput = card.querySelector('.memberNameDraft');
-        let chosenEmoji = '🙂';
+        const namesTextarea = card.querySelector('.teamNamesInput');
         teamEmojiBtn.addEventListener('click', (ev) => toggleEmojiPicker(ev.currentTarget, (emoji) => {
           pushHistory('Edit team emoji');
           team.emoji = emoji;
@@ -3857,6 +3849,11 @@
           renderTeamManager();
           scheduleSave();
         });
+        namesTextarea.addEventListener('input', () => {
+          team.memberText = namesTextarea.value;
+          renderPlayers();
+          scheduleSave();
+        });
         card.querySelectorAll('[data-team-color]').forEach((btn) => {
           btn.addEventListener('click', () => {
             pushHistory('Edit team color');
@@ -3865,26 +3862,6 @@
             renderTeamManager();
             scheduleSave();
           });
-        });
-        emojiBtn.addEventListener('click', (ev) => toggleEmojiPicker(ev.currentTarget, (emoji) => {
-          chosenEmoji = emoji;
-          emojiBtn.textContent = emoji;
-        }, PEOPLE_EMOJIS));
-        card.querySelector('[data-act="add-member"]').addEventListener('click', () => {
-          const name = draftInput.value.trim();
-          if (!name) return;
-          pushHistory('Add team member');
-          if (!Array.isArray(team.members)) team.members = [];
-          team.members.push({ emoji:chosenEmoji, name });
-          renderPlayers();
-          renderTeamManager();
-          scheduleSave();
-        });
-        draftInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') card.querySelector('[data-act="add-member"]').click();
-        });
-        card.querySelectorAll('[data-member-remove]').forEach((btn) => {
-          btn.addEventListener('click', () => removeTeamMember(team.id, Number(btn.dataset.memberRemove)));
         });
         card.querySelector('[data-act="remove-team"]').addEventListener('click', () => removePlayer(team.id));
         target.appendChild(card);
