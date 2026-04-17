@@ -1752,9 +1752,10 @@
     }
     .taskCardWrap{
       display:grid;
-      grid-template-columns:repeat(3, minmax(0, 1fr));
+      grid-template-columns:repeat(5, minmax(0, 1fr));
       gap:8px;
       align-content:start;
+      grid-auto-rows:1fr;
     }
     .taskColumnHead{
       display:none;
@@ -1817,28 +1818,35 @@
       border:1px solid rgba(102,57,18,.38);
       border-radius:10px;
       background:linear-gradient(180deg, rgba(128,77,33,.96), rgba(92,52,20,.96));
-      min-height:30px;
-      padding:2px 8px;
+      min-height:68px;
+      height:100%;
+      padding:8px 8px 9px;
       text-align:center;
       display:grid;
-      grid-template-columns:auto 1fr;
-      gap:6px;
+      grid-template-columns:minmax(0,1fr);
+      grid-template-rows:auto minmax(0,1fr);
+      gap:4px;
       align-items:center;
       justify-items:center;
+      align-content:center;
       box-shadow:0 10px 22px rgba(0,0,0,.2);
       pointer-events:auto;
     }
     .taskLaunchCard strong{
-      font-size:17px;
+      font-size:15px;
       color:#f7e7c0;
-      line-height:1.12;
+      line-height:1.02;
+      display:block;
+      width:100%;
+      text-align:center;
+      align-self:start;
     }
     .taskLaunchCard .emoji{
-      width:20px;
-      height:20px;
+      width:24px;
+      height:24px;
       display:grid;
       place-items:center;
-      font-size:17px;
+      font-size:21px;
       line-height:1;
       text-align:center;
     }
@@ -1968,7 +1976,7 @@
     .taskModalText{
       max-width:32ch;
       font-size:clamp(30px,3.4vw,44px);
-      line-height:1.26;
+      line-height:1.14;
       color:#111;
       white-space:pre-wrap;
       text-wrap:pretty;
@@ -2199,6 +2207,9 @@
       }
       .taskModalCard{
         min-height:60vh;
+      }
+      .taskModalText{
+        line-height:1.1;
       }
       .taskModalBody{
         padding:18px 24px 8px;
@@ -2773,6 +2784,13 @@
     function taskCardDescription(spot){
       if (typeof spot.sub === 'string' && spot.sub.trim()) return spot.sub.trim();
       return 'Add Text';
+    }
+    function formatTaskCardTitle(title){
+      const clean = String(title || 'Task').trim().replace(/\s+/g, ' ');
+      if (!clean) return 'Task';
+      const words = clean.split(' ');
+      if (words.length < 2) return clean;
+      return `${words[0]}<br>${words.slice(1).join(' ')}`;
     }
     function defaultTaskColumns(){
       return {
@@ -5981,7 +5999,7 @@
         card.className = 'taskLaunchCard' + (spot.hidden ? ' hiddenSlot' : '');
         card.innerHTML = `
           <span class="emoji">${escapeHtml(spot.emoji || '📝')}</span>
-          <strong>${escapeHtml(spot.tip || 'Task')}</strong>
+          <strong>${formatTaskCardTitle(spot.tip || 'Task')}</strong>
         `;
         card.addEventListener('click', () => {
           if (taskLayoutEdit) return;
