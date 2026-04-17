@@ -1720,6 +1720,12 @@
       min-width:0;
       z-index:2;
     }
+    .taskCardWrap{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:8px;
+      align-content:start;
+    }
     .taskColumnHead{
       display:none;
       align-items:center;
@@ -1810,6 +1816,13 @@
       filter:grayscale(1);
       background:linear-gradient(180deg, rgba(112,103,90,.92), rgba(86,78,68,.92));
     }
+    .taskLaunchCard.hiddenSlot{
+      visibility:hidden;
+      pointer-events:none;
+      box-shadow:none;
+      border-color:transparent;
+      background:transparent;
+    }
     .taskColumnEmpty{
       border:1px dashed rgba(245,200,66,.2);
       border-radius:14px;
@@ -1840,8 +1853,9 @@
     }
     .cardEditGrid{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
       gap:12px;
+      align-items:start;
     }
     .cardEditColumn{
       display:grid;
@@ -1859,6 +1873,11 @@
       font-size:15px;
       text-transform:uppercase;
       letter-spacing:.06em;
+    }
+    .cardEditorList{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:12px;
     }
     .taskModalHead{
       position:relative;
@@ -1918,7 +1937,7 @@
     .taskModalText{
       max-width:32ch;
       font-size:clamp(30px,3.4vw,44px);
-      line-height:1.38;
+      line-height:1.26;
       color:#111;
       white-space:pre-wrap;
       text-wrap:pretty;
@@ -2086,6 +2105,9 @@
         left:auto !important;
         top:auto !important;
       }
+      .taskCardWrap{
+        grid-template-columns:1fr;
+      }
       .taskColumnHead{display:none}
       .cardEditGrid{grid-template-columns:1fr}
     }
@@ -2160,6 +2182,7 @@
       .taskModalText{
         max-width:30ch;
         font-size:clamp(24px,2.6vw,34px);
+        line-height:1.22;
       }
     }
     @media (max-width: 640px){
@@ -2716,20 +2739,9 @@
       if (typeof spot.sub === 'string' && spot.sub.trim()) return spot.sub.trim();
       return 'Add Text';
     }
-    function taskColumnKey(spot){
-      const left = Number(spot && spot.left);
-      if (left <= 34) return 'physical';
-      if (left <= 67) return 'creative';
-      return 'mental';
-    }
-    function cardColumnLeft(column){
-      return { physical:20, creative:50, mental:80 }[column] || 20;
-    }
     function defaultTaskColumns(){
       return {
-        physical:{ x:9.150466059009002, y:48.957360015541894, w:16 },
-        creative:{ x:30.45131244948834, y:48.937674863592534, w:16 },
-        mental:{ x:51.643161254567396, y:49.169659407661264, w:16 }
+        board:{ x:9, y:44, w:63 }
       };
     }
     function ensureTaskColumns(map){
@@ -2737,20 +2749,10 @@
       const base = defaultTaskColumns();
       const saved = map.taskColumns && typeof map.taskColumns === 'object' ? map.taskColumns : {};
       map.taskColumns = {
-        physical:{
-          x:clamp(Number.isFinite(Number(saved.physical && saved.physical.x)) ? Number(saved.physical.x) : base.physical.x, 0, 77),
-          y:clamp(Number.isFinite(Number(saved.physical && saved.physical.y)) ? Number(saved.physical.y) : base.physical.y, 0, 60),
-          w:base.physical.w
-        },
-        creative:{
-          x:clamp(Number.isFinite(Number(saved.creative && saved.creative.x)) ? Number(saved.creative.x) : base.creative.x, 0, 77),
-          y:clamp(Number.isFinite(Number(saved.creative && saved.creative.y)) ? Number(saved.creative.y) : base.creative.y, 0, 60),
-          w:base.creative.w
-        },
-        mental:{
-          x:clamp(Number.isFinite(Number(saved.mental && saved.mental.x)) ? Number(saved.mental.x) : base.mental.x, 0, 77),
-          y:clamp(Number.isFinite(Number(saved.mental && saved.mental.y)) ? Number(saved.mental.y) : base.mental.y, 0, 60),
-          w:base.mental.w
+        board:{
+          x:clamp(Number.isFinite(Number(saved.board && saved.board.x)) ? Number(saved.board.x) : base.board.x, 0, 70),
+          y:clamp(Number.isFinite(Number(saved.board && saved.board.y)) ? Number(saved.board.y) : base.board.y, 0, 70),
+          w:clamp(Number(saved.board && saved.board.w) || base.board.w, 24, 80)
         }
       };
       return map.taskColumns || base;
@@ -4001,10 +4003,10 @@
         const dyPct = ((e.clientY - taskColumnDrag.startY) / taskColumnDrag.rect.height) * 100;
         if (Math.abs(dxPct) > 0.2 || Math.abs(dyPct) > 0.2) taskColumnDrag.moved = true;
         if (taskColumnDrag.mode === 'resize') {
-          next.w = clamp(taskColumnDrag.originW + dxPct, 12, 40);
+          next.w = clamp(taskColumnDrag.originW + dxPct, 24, 80);
         } else {
-          next.x = clamp(taskColumnDrag.originX + dxPct, -8, 88);
-          next.y = clamp(taskColumnDrag.originY + dyPct, -8, 72);
+          next.x = clamp(taskColumnDrag.originX + dxPct, 0, 70);
+          next.y = clamp(taskColumnDrag.originY + dyPct, 0, 70);
         }
         const liveCol = els.taskBoardLayer && els.taskBoardLayer.querySelector(`[data-column-key="${taskColumnDrag.key}"]`);
         if (liveCol) {
@@ -5640,7 +5642,7 @@
       const cols = ensureTaskColumns(map);
       const positionData = {
         leaderboard: sidebarPosition,
-        columns: cols
+        cards: cols.board || cols
       };
       const wrap = document.createElement('div');
       wrap.className = 'editGrid';
@@ -5862,182 +5864,151 @@
         return true;
       });
       if (!visibleSpots.length) {
-        const empty = document.createElement('div');
-        empty.className = 'editCard';
-        empty.innerHTML = '<div class="subtle">No task cards left to show.</div>';
-        wrap.appendChild(empty);
         target.appendChild(wrap);
         return;
       }
-      const columns = [
-        ['physical', 'Physical'],
-        ['creative', 'Creative'],
-        ['mental', 'Mental']
-      ];
-      const grouped = { physical:[], creative:[], mental:[] };
-      visibleSpots.forEach((spot) => {
-        grouped[taskColumnKey(spot)].push(spot);
-      });
       const colGrid = document.createElement('div');
       colGrid.className = 'taskColumnGrid';
-      columns.forEach(([key, label]) => {
-        const col = document.createElement('section');
-        col.className = 'taskColumn';
-        col.dataset.columnKey = key;
-        const offset = taskColumns[key] || { x:0, y:0 };
-        col.style.left = `${offset.x || 0}%`;
-        col.style.top = `${offset.y || 0}%`;
-        col.style.width = `${offset.w || 100}%`;
-        col.innerHTML = `
-          <div class="taskColumnHead">${escapeHtml(label)}</div>
-          <div class="taskColumnResize" aria-hidden="true"></div>
-        `;
-        const handle = col.querySelector('.taskColumnHead');
-        const resizeHandle = col.querySelector('.taskColumnResize');
-        handle.addEventListener('pointerdown', (e) => {
-          if (window.innerWidth <= 980 || !taskLayoutEdit) return;
-          pushHistory('Move task column');
-          const rect = target.getBoundingClientRect();
-          taskColumnDrag = {
-            mode:'move',
-            key,
-            rect,
-            startX:e.clientX,
-            startY:e.clientY,
-            originX:offset.x,
-            originY:offset.y,
-            originW:offset.w || 100,
-            moved:false
-          };
-          col.classList.add('dragging');
-          handle.setPointerCapture(e.pointerId);
-          e.preventDefault();
-          e.stopPropagation();
-        });
-        resizeHandle.addEventListener('pointerdown', (e) => {
-          if (window.innerWidth <= 980 || !taskLayoutEdit) return;
-          pushHistory('Resize task column');
-          const rect = target.getBoundingClientRect();
-          taskColumnDrag = {
-            mode:'resize',
-            key,
-            rect,
-            startX:e.clientX,
-            startY:e.clientY,
-            originX:offset.x,
-            originY:offset.y,
-            originW:offset.w || 100,
-            moved:false
-          };
-          col.classList.add('dragging');
-          resizeHandle.setPointerCapture(e.pointerId);
-          e.preventDefault();
-          e.stopPropagation();
-        });
-        if (!grouped[key].length) {
-          const empty = document.createElement('div');
-          empty.className = 'taskColumnEmpty';
-          empty.textContent = 'No tasks here right now.';
-          col.appendChild(empty);
-        }
-        grouped[key].forEach((spot) => {
-          const card = document.createElement('button');
-          card.type = 'button';
-          card.className = 'taskLaunchCard' + (spot.hidden ? ' completed' : '');
-          card.innerHTML = `
-            <span class="emoji">${escapeHtml(spot.emoji || '📝')}</span>
-            <strong>${escapeHtml(spot.tip || 'Task')}</strong>
-          `;
-          card.addEventListener('click', () => {
-            if (taskLayoutEdit) return;
-            handleHotspot(spot);
-          });
-          col.appendChild(card);
-        });
-        colGrid.appendChild(col);
+      const key = 'board';
+      const box = document.createElement('section');
+      box.className = 'taskColumn';
+      box.dataset.columnKey = key;
+      const offset = taskColumns[key] || { x:9, y:44, w:63 };
+      box.style.left = `${offset.x || 0}%`;
+      box.style.top = `${offset.y || 0}%`;
+      box.style.width = `${offset.w || 100}%`;
+      box.innerHTML = `
+        <div class="taskColumnHead">Move Cards</div>
+        <div class="taskColumnResize" aria-hidden="true"></div>
+        <div class="taskCardWrap"></div>
+      `;
+      const handle = box.querySelector('.taskColumnHead');
+      const resizeHandle = box.querySelector('.taskColumnResize');
+      const cardWrap = box.querySelector('.taskCardWrap');
+      handle.addEventListener('pointerdown', (e) => {
+        if (window.innerWidth <= 980 || !taskLayoutEdit) return;
+        pushHistory('Move task box');
+        const rect = target.getBoundingClientRect();
+        taskColumnDrag = {
+          mode:'move',
+          key,
+          rect,
+          startX:e.clientX,
+          startY:e.clientY,
+          originX:offset.x,
+          originY:offset.y,
+          originW:offset.w || 100,
+          moved:false
+        };
+        box.classList.add('dragging');
+        handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+        e.stopPropagation();
       });
+      resizeHandle.addEventListener('pointerdown', (e) => {
+        if (window.innerWidth <= 980 || !taskLayoutEdit) return;
+        pushHistory('Resize task box');
+        const rect = target.getBoundingClientRect();
+        taskColumnDrag = {
+          mode:'resize',
+          key,
+          rect,
+          startX:e.clientX,
+          startY:e.clientY,
+          originX:offset.x,
+          originY:offset.y,
+          originW:offset.w || 100,
+          moved:false
+        };
+        box.classList.add('dragging');
+        resizeHandle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      visibleSpots.forEach((spot) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'taskLaunchCard' + (spot.hidden ? ' hiddenSlot' : '');
+        card.innerHTML = `
+          <span class="emoji">${escapeHtml(spot.emoji || '📝')}</span>
+          <strong>${escapeHtml(spot.tip || 'Task')}</strong>
+        `;
+        card.addEventListener('click', () => {
+          if (taskLayoutEdit) return;
+          handleHotspot(spot);
+        });
+        cardWrap.appendChild(card);
+      });
+      colGrid.appendChild(box);
       wrap.appendChild(colGrid);
       target.appendChild(wrap);
     }
     function mountBoardCardEditor(target){
       if (!target) return;
       const cards = currentHotspots();
-      const groups = {
-        physical:cards.filter((card) => taskColumnKey(card) === 'physical'),
-        creative:cards.filter((card) => taskColumnKey(card) === 'creative'),
-        mental:cards.filter((card) => taskColumnKey(card) === 'mental')
-      };
       target.innerHTML = `
         <div class="cardEditGrid">
-          <section class="cardEditColumn" data-column="physical">
-            <h3>Physical</h3>
-            <div class="editGrid" data-role="list"></div>
-            <button type="button" class="addRow" data-add-column="physical">＋ Add Card</button>
-          </section>
-          <section class="cardEditColumn" data-column="creative">
-            <h3>Creative</h3>
-            <div class="editGrid" data-role="list"></div>
-            <button type="button" class="addRow" data-add-column="creative">＋ Add Card</button>
-          </section>
-          <section class="cardEditColumn" data-column="mental">
-            <h3>Mental</h3>
-            <div class="editGrid" data-role="list"></div>
-            <button type="button" class="addRow" data-add-column="mental">＋ Add Card</button>
+          <section class="cardEditColumn" data-column="board">
+            <h3>Cards</h3>
+            <div class="cardEditorList" data-role="list"></div>
+            <button type="button" class="addRow" data-add-column="board">＋ Add Card</button>
           </section>
         </div>
       `;
-      Object.entries(groups).forEach(([column, list]) => {
-        const mount = target.querySelector(`[data-column="${column}"] [data-role="list"]`);
-        list.forEach((card) => {
-          const row = document.createElement('div');
-          row.className = 'editCard';
-          row.innerHTML = `
-            <div class="editRow">
-              <button type="button" class="bigEmoji">${escapeHtml(card.emoji || '📝')}</button>
-              <input type="text" value="${escapeAttr(card.tip || '')}" placeholder="Card title">
-              <button type="button" class="miniBtn" data-act="delete">✕</button>
-            </div>
-            <textarea placeholder="Add Text">${escapeHtml(card.sub || '')}</textarea>
-          `;
-          const emojiBtn = row.querySelector('.bigEmoji');
-          const titleInput = row.querySelector('input');
-          const descInput = row.querySelector('textarea');
-          emojiBtn.addEventListener('click', (ev) => toggleEmojiPicker(ev.currentTarget, (emoji) => {
-            pushHistory('Edit board card emoji');
-            card.emoji = emoji;
-            renderInlineHotspotEditor();
-            renderCardEditorPanel();
-            scheduleSave();
-          }, HOTSPOT_EMOJIS));
-          titleInput.addEventListener('focus', () => pushHistory('Edit board card title'), { once:true });
-          titleInput.addEventListener('input', () => {
-            card.tip = titleInput.value;
-            renderInlineHotspotEditor();
-            scheduleSave();
-          });
-          descInput.addEventListener('focus', () => pushHistory('Edit board card description'), { once:true });
-          descInput.addEventListener('input', () => {
-            card.sub = descInput.value;
-            scheduleSave();
-          });
-          row.querySelector('[data-act="delete"]').addEventListener('click', () => {
-            pushHistory('Delete board card');
-            const idx = cards.findIndex((item) => item.id === card.id);
-            if (idx >= 0) cards.splice(idx, 1);
-            renderInlineHotspotEditor();
-            renderCardEditorPanel();
-            scheduleSave();
-          });
-          mount.appendChild(row);
+      const mount = target.querySelector('[data-column="board"] [data-role="list"]');
+      cards.forEach((card) => {
+        const row = document.createElement('div');
+        row.className = 'editCard';
+        row.innerHTML = `
+          <div class="editRow">
+            <button type="button" class="bigEmoji">${escapeHtml(card.emoji || '📝')}</button>
+            <input type="text" value="${escapeAttr(card.tip || '')}" placeholder="Card title">
+            <button type="button" class="miniBtn" data-act="toggle-hide">${card.hidden ? 'Show' : 'Hide'}</button>
+            <button type="button" class="miniBtn" data-act="delete">✕</button>
+          </div>
+          <textarea placeholder="Add Text">${escapeHtml(card.sub || '')}</textarea>
+        `;
+        const emojiBtn = row.querySelector('.bigEmoji');
+        const titleInput = row.querySelector('input');
+        const descInput = row.querySelector('textarea');
+        emojiBtn.addEventListener('click', (ev) => toggleEmojiPicker(ev.currentTarget, (emoji) => {
+          pushHistory('Edit board card emoji');
+          card.emoji = emoji;
+          refreshBoardCardViews();
+          scheduleSave();
+        }, HOTSPOT_EMOJIS));
+        titleInput.addEventListener('focus', () => pushHistory('Edit board card title'), { once:true });
+        titleInput.addEventListener('input', () => {
+          card.tip = titleInput.value;
+          renderInlineHotspotEditor();
+          scheduleSave();
         });
+        descInput.addEventListener('focus', () => pushHistory('Edit board card description'), { once:true });
+        descInput.addEventListener('input', () => {
+          card.sub = descInput.value;
+          scheduleSave();
+        });
+        row.querySelector('[data-act="toggle-hide"]').addEventListener('click', () => {
+          pushHistory(card.hidden ? 'Show board card' : 'Hide board card');
+          card.hidden = !card.hidden;
+          refreshBoardCardViews();
+          scheduleSave();
+        });
+        row.querySelector('[data-act="delete"]').addEventListener('click', () => {
+          pushHistory('Delete board card');
+          const idx = cards.findIndex((item) => item.id === card.id);
+          if (idx >= 0) cards.splice(idx, 1);
+          refreshBoardCardViews();
+          scheduleSave();
+        });
+        mount.appendChild(row);
       });
       target.querySelectorAll('[data-add-column]').forEach((btn) => {
         btn.addEventListener('click', () => {
-          const column = btn.dataset.addColumn;
           pushHistory('Add board card');
           cards.push({
             id:uid('spot'),
-            left:cardColumnLeft(column),
+            left:50,
             top:50,
             emoji:'📝',
             tip:'New Card',
@@ -6048,8 +6019,7 @@
             hidden:false,
             customCards:[]
           });
-          renderInlineHotspotEditor();
-          renderCardEditorPanel();
+          refreshBoardCardViews();
           scheduleSave();
         });
       });
@@ -6057,6 +6027,11 @@
     function renderCardEditorPanel(){
       if (!els.cardEditPanel) return;
       mountBoardCardEditor(els.cardEditPanel);
+    }
+    function refreshBoardCardViews(){
+      renderInlineHotspotEditor();
+      renderCardEditorPanel();
+      if (els.adminOverlay.style.display === 'flex' && activeAdminTab === 'CARDS') renderAdmin();
     }
     function renderInlineHotspotEditor(){
       if (!els.taskBoardLayer) return;
