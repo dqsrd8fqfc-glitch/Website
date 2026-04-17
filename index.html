@@ -1994,16 +1994,23 @@
       border-radius:999px;
     }
     .taskModalActions{
+      position:absolute;
+      top:0;
+      right:52px;
       display:flex;
+      align-items:center;
       justify-content:center;
-      padding:0 10px 10px;
+      padding:0;
     }
     .taskCompleteBtn{
-      min-width:220px;
-      padding:14px 20px;
+      min-width:42px;
+      width:42px;
+      height:42px;
+      padding:0;
       border-radius:999px;
-      font-size:17px;
+      font-size:20px;
       font-weight:700;
+      line-height:1;
     }
     .adminBtns{display:flex;gap:8px;flex-wrap:wrap}
     .hidden{display:none !important}
@@ -2373,6 +2380,7 @@
     'use strict';
 
     const STORAGE_KEY = 'taskmaster_v2';
+    const STORAGE_BACKUP_KEY = 'taskmaster_v2_backup';
     const PLAYER_COLORS = [
       ['blue', '#3a7bd5'],
       ['green', '#3f8f43'],
@@ -2502,6 +2510,18 @@
       { id:'memory_palace', left:20, top:50, emoji:'🏰', tip:'Memory Palace', sub:'Study objects on a tray for 30 seconds, then the tray is covered. Team that writes the most correct answers wins.', type:'draw', mode:'draw', coreAction:'', hidden:false, customCards:[] }
     ];
     const REMOVED_DEFAULT_HOTSPOTS = ['dartboard', 'lanterns', 'mantelpiece'];
+    const LEGACY_HOTSPOT_IDS = [
+      'tea_bags',
+      'marching_on_the_spot',
+      'card_house',
+      'book_balance',
+      'sweet_sort',
+      'ice_cube_rescue',
+      'mummy_wrap',
+      'portrait_of_nick',
+      'spaghetti_tower',
+      'hide_peg'
+    ];
 
     const NPCS = [];
 
@@ -3061,6 +3081,9 @@
     function cloneDefaultHotspots(){
       return plainClone(DEFAULT_HOTSPOTS);
     }
+    function hasLegacyHotspotSet(hotspots){
+      return Array.isArray(hotspots) && hotspots.some((spot) => LEGACY_HOTSPOT_IDS.includes(spot && spot.id));
+    }
     function sofaOutcomeTier(roll){
       if (roll >= 16) return { label:'Great success', tone:'The conversation lands beautifully.' };
       if (roll >= 10) return { label:'Mixed result', tone:'It sort of works, but not cleanly.' };
@@ -3075,7 +3098,7 @@
     }
     function syncDefaultHotspots(map){
       if (!map) return;
-      if (!Array.isArray(map.hotspots) || !map.hotspots.length) {
+      if (!Array.isArray(map.hotspots) || !map.hotspots.length || hasLegacyHotspotSet(map.hotspots)) {
         map.hotspots = cloneDefaultHotspots();
       } else {
         map.hotspots = map.hotspots.map((spot) => ({
@@ -3178,7 +3201,7 @@
     function scheduleSave(){
       if (saveSuspended) return;
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveToStorage, 800);
+      saveTimer = setTimeout(saveToStorage, 250);
     }
     function saveNow(){
       if (saveSuspended) return;
@@ -3569,12 +3592,51 @@
         sidebarPosition: plainClone(sidebarPosition)
       };
     }
+    function buildBrowserSaveData(){
+      const base = buildSaveData(false);
+      return {
+        version:base.version,
+        layoutVersion:base.layoutVersion,
+        pubName:base.pubName,
+        players:plainClone(base.players),
+        pidCounter:base.pidCounter,
+        maps:plainClone(base.maps),
+        activeMapId:base.activeMapId,
+        spotlight:plainClone(base.spotlight),
+        playerDisplay:base.playerDisplay,
+        sidebarPosition:plainClone(base.sidebarPosition)
+      };
+    }
     function saveToStorage(){
-      const base = buildSaveData(true);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(base));
+        const compact = JSON.stringify(buildBrowserSaveData());
+        localStorage.setItem(STORAGE_KEY, compact);
+        localStorage.setItem(STORAGE_BACKUP_KEY, compact);
       } catch (err) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(buildSaveData(false)));
+        try {
+          const minimal = JSON.stringify({
+            version:2,
+            layoutVersion:LAYOUT_VERSION,
+            players:players.map((p) => ({ ...p, tokPos:[p.tokPos[0], p.tokPos[1]] })),
+            pidCounter,
+            maps:maps.map((map) => ({
+              id:map.id,
+              name:map.name,
+              imageData:'',
+              hotspots:plainClone(map.hotspots || []),
+              annotations:[],
+              playerTokPos:plainClone(map.playerTokPos || {}),
+              npcTokPos:{},
+              taskColumns:plainClone(map.taskColumns || defaultTaskColumns())
+            })),
+            activeMapId,
+            sidebarPosition:plainClone(sidebarPosition)
+          });
+          localStorage.setItem(STORAGE_KEY, minimal);
+          localStorage.setItem(STORAGE_BACKUP_KEY, minimal);
+        } catch (innerErr) {
+          return;
+        }
       }
       flashSaved();
     }
@@ -3714,18 +3776,19 @@
       syncUndoRedo();
     }
     function loadFromStorage(){
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        resetSessionBits();
-        renderEverything();
-        return;
+      const candidates = [STORAGE_KEY, STORAGE_BACKUP_KEY];
+      for (const key of candidates) {
+        const raw = localStorage.getItem(key);
+        if (!raw) continue;
+        try {
+          restoreFromData(JSON.parse(raw));
+          return;
+        } catch (err) {
+          continue;
+        }
       }
-      try {
-        restoreFromData(JSON.parse(raw));
-      } catch (err) {
-        resetSessionBits();
-        renderEverything();
-      }
+      resetSessionBits();
+      renderEverything();
     }
     function renderEverything(){
       ensureMapSelection();
@@ -4152,15 +4215,15 @@
       openModal(`
         <div class="modalCard taskModalCard">
           <div class="taskModalHead">
+            <div class="taskModalActions">
+              <button id="taskHideBtn" class="taskCompleteBtn" type="button" aria-label="${spot.hidden ? 'Mark task incomplete' : 'Mark task complete'}">${spot.hidden ? '↺' : '✓'}</button>
+            </div>
             <button id="taskCloseBtn" type="button" class="taskModalClose" aria-label="Close task">✕</button>
             <div class="taskModalBody">
               <div class="taskModalEmoji">${escapeHtml(spot.emoji || '📝')}</div>
               <h3 class="taskModalTitle">${escapeHtml(spot.tip || 'Task')}</h3>
               <p class="taskModalText">${escapeHtml(taskCardDescription(spot))}</p>
             </div>
-          </div>
-          <div class="taskModalActions">
-            <button id="taskHideBtn" class="taskCompleteBtn" type="button">${spot.hidden ? 'Mark Incomplete' : 'Mark Complete'}</button>
           </div>
         </div>
       `);
@@ -6474,6 +6537,11 @@
     window.addEventListener('resize', () => {
       renderSidebarPosition();
       positionTaskLayoutButton();
+    });
+    window.addEventListener('pagehide', saveNow);
+    window.addEventListener('beforeunload', saveNow);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') saveNow();
     });
 
     renderColorChoices();
