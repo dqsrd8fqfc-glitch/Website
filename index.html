@@ -189,12 +189,26 @@
       left:auto;
       right:14px;
     }
+    .mapGhostBtn.middle{
+      left:50%;
+      right:auto;
+      transform:translateX(-50%);
+    }
     .mapGhostBtn:hover,
     .mapGhostBtn:focus-visible,
     body.taskLayoutEdit .mapGhostBtn{
       opacity:.08;
       background:rgba(255,218,140,.08);
       border-color:rgba(245,200,66,.14);
+    }
+    body.presentationHide .sidebar,
+    body.presentationHide #taskBoardLayer,
+    body.presentationHide #annotationLayer,
+    body.presentationHide #tokenLayer,
+    body.presentationHide .cardEditPanel,
+    body.presentationHide #taskLayoutBtn,
+    body.presentationHide #layoutToggleBtn{
+      display:none !important;
     }
     .mapToolsPanel{
       margin-top:14px;
@@ -713,8 +727,8 @@
     }
     .teamMain{
       display:grid;
-      grid-template-columns:auto minmax(0,1fr) auto;
-      gap:6px;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:4px;
       min-width:0;
       align-items:center;
     }
@@ -729,18 +743,6 @@
       resize:none;
       min-height:36px;
       line-height:1.4;
-    }
-    .teamBadge{
-      width:30px;
-      height:30px;
-      border-radius:999px;
-      display:grid;
-      place-items:center;
-      font-size:17px;
-      line-height:1;
-      background:rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.22);
-      flex:none;
     }
     .teamLeft{
       display:grid;
@@ -2207,6 +2209,7 @@
       <div class="mapCol">
         <div id="mapC">
           <button id="taskLayoutBtn" class="mapGhostBtn left" type="button" title="Arrange task columns" aria-label="Arrange task columns">Edit Layout</button>
+          <button id="presentationToggleBtn" class="mapGhostBtn middle" type="button" title="Hide board overlays" aria-label="Hide board overlays">Hide</button>
           <button id="layoutToggleBtn" class="mapGhostBtn right" type="button" title="Move board items" aria-label="Move board items">Layout</button>
           <img id="mapImg" alt="" src="https://dqsrd8fqfc-glitch.github.io/Website/Image.png" aria-hidden="true">
           <div id="bannerMask"></div>
@@ -2589,6 +2592,7 @@
       saveFlash:document.getElementById('saveFlash'),
       manualSaveBtn:document.getElementById('manualSaveBtn'),
       taskLayoutBtn:document.getElementById('taskLayoutBtn'),
+      presentationToggleBtn:document.getElementById('presentationToggleBtn'),
       layoutToggleBtn:document.getElementById('layoutToggleBtn'),
       emojiPicker:document.getElementById('emojiPicker'),
       runModeBtn:document.getElementById('runModeBtn'),
@@ -2622,6 +2626,7 @@
     let selectedAnnotationId = '';
     let playerDisplay = false;
     let taskLayoutEdit = false;
+    let presentationHide = false;
     let teamEditOpen = false;
     let spotlight = { type:'', id:'' };
     let taskColumnDrag = null;
@@ -2741,7 +2746,7 @@
     }
     function defaultTaskColumns(){
       return {
-        board:{ x:9, y:44, w:63 }
+        board:{ x:9, y:44, w:58 }
       };
     }
     function ensureTaskColumns(map){
@@ -2752,7 +2757,7 @@
         board:{
           x:clamp(Number.isFinite(Number(saved.board && saved.board.x)) ? Number(saved.board.x) : base.board.x, 0, 70),
           y:clamp(Number.isFinite(Number(saved.board && saved.board.y)) ? Number(saved.board.y) : base.board.y, 0, 70),
-          w:clamp(Number(saved.board && saved.board.w) || base.board.w, 24, 80)
+          w:clamp(Number(saved.board && saved.board.w) || base.board.w, 24, 72)
         }
       };
       return map.taskColumns || base;
@@ -3273,9 +3278,15 @@
     function renderTaskLayoutButton(){
       if (!els.taskLayoutBtn) return;
       els.body.classList.toggle('taskLayoutEdit', taskLayoutEdit);
+      els.body.classList.toggle('presentationHide', presentationHide);
       els.taskLayoutBtn.textContent = 'Edit';
       els.taskLayoutBtn.title = 'Open board editor';
       els.taskLayoutBtn.setAttribute('aria-label', 'Open board editor');
+      if (els.presentationToggleBtn) {
+        els.presentationToggleBtn.textContent = presentationHide ? 'Show' : 'Hide';
+        els.presentationToggleBtn.title = presentationHide ? 'Show board overlays' : 'Hide board overlays';
+        els.presentationToggleBtn.setAttribute('aria-label', els.presentationToggleBtn.title);
+      }
       if (els.layoutToggleBtn) {
         els.layoutToggleBtn.textContent = 'Layout';
         els.layoutToggleBtn.title = taskLayoutEdit ? 'Lock board layout' : 'Move board items';
@@ -3294,10 +3305,18 @@
       const imageLeft = Math.max(0, (viewportW - imageWidth) / 2);
       els.taskLayoutBtn.style.left = `${imageLeft + 14}px`;
       els.taskLayoutBtn.style.top = '14px';
+      if (els.presentationToggleBtn) {
+        els.presentationToggleBtn.style.left = `${imageLeft + (imageWidth / 2)}px`;
+        els.presentationToggleBtn.style.top = '14px';
+      }
       if (els.layoutToggleBtn) {
         els.layoutToggleBtn.style.left = `${imageLeft + imageWidth - 126}px`;
         els.layoutToggleBtn.style.top = '14px';
       }
+    }
+    function togglePresentationHide(){
+      presentationHide = !presentationHide;
+      renderTaskLayoutButton();
     }
     function renderTeamEditorToggle(){
       if (!els.leaderboardEditor || !els.teamEditToggleBtn) return;
@@ -3790,7 +3809,7 @@
           <div class="teamMain">
             <div class="teamLeft">
               <div class="teamTop">
-                <div class="teamNameInput">${escapeHtml(p.emoji || '')} ${escapeHtml(p.name)}</div>
+                <div class="teamNameInput">${escapeHtml(p.name)}</div>
               </div>
               <textarea class="teamNamesInput" placeholder="No members added" rows="2" aria-label="Team members" readonly>${escapeHtml(p.memberText || '')}</textarea>
               ${conditions.length ? `<div class="chipWrap">${conditions.map((c) => `<span class="chip">${escapeHtml(c.icon || '✦')} ${escapeHtml(c.label)}</span>`).join('')}</div>` : ''}
@@ -6361,6 +6380,7 @@
       });
     }
     if (els.taskLayoutBtn) els.taskLayoutBtn.addEventListener('click', openCardEditor);
+    if (els.presentationToggleBtn) els.presentationToggleBtn.addEventListener('click', togglePresentationHide);
     if (els.layoutToggleBtn) els.layoutToggleBtn.addEventListener('click', toggleTaskLayoutEdit);
     if (els.layoutInfoBtn) els.layoutInfoBtn.addEventListener('click', openLayoutInfo);
     if (els.teamEditToggleBtn) els.teamEditToggleBtn.addEventListener('click', toggleTeamEditor);
