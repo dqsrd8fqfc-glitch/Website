@@ -727,10 +727,22 @@
     }
     .teamMain{
       display:grid;
-      grid-template-columns:minmax(0,1fr) auto;
-      gap:4px;
+      grid-template-columns:auto minmax(0,1fr) auto;
+      gap:6px;
       min-width:0;
       align-items:center;
+    }
+    .teamBadge{
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      font-size:17px;
+      line-height:1;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.22);
+      flex:none;
     }
     .teamNamesInput{
       width:100%;
@@ -1791,11 +1803,12 @@
       background:linear-gradient(180deg, rgba(128,77,33,.96), rgba(92,52,20,.96));
       min-height:30px;
       padding:2px 8px;
-      text-align:left;
+      text-align:center;
       display:grid;
-      grid-template-columns:auto 1fr;
-      gap:6px;
+      grid-template-columns:1fr;
+      gap:2px;
       align-items:center;
+      justify-items:center;
       box-shadow:0 10px 22px rgba(0,0,0,.2);
       pointer-events:auto;
     }
@@ -1812,6 +1825,7 @@
       font-size:17px;
       line-height:1;
       text-align:center;
+      margin:0 auto;
     }
     .taskLaunchCard.completed{
       opacity:.58;
@@ -2634,7 +2648,7 @@
     let actionHistory = [];
     let redoHistory = [];
     let saveSuspended = false;
-    let sidebarPosition = { x:854, y:242.5 };
+    let sidebarPosition = { x:862.5, y:180 };
 
     const sessionState = {
       activeEffects:[],
@@ -2746,7 +2760,7 @@
     }
     function defaultTaskColumns(){
       return {
-        board:{ x:9, y:44, w:58 }
+        board:{ x:8.067796610169491, y:50.784083496412265, w:58 }
       };
     }
     function ensureTaskColumns(map){
@@ -2765,8 +2779,8 @@
     const LAYOUT_VERSION = '3';
     function defaultSidebarPosition(){
       return {
-        x:854,
-        y:242.5
+        x:862.5,
+        y:180
       };
     }
     function normalizeSidebarPosition(pos){
@@ -3807,6 +3821,7 @@
         row.style.background = p.color;
         row.innerHTML = `
           <div class="teamMain">
+            <div class="teamBadge">${escapeHtml(p.emoji || '🏷️')}</div>
             <div class="teamLeft">
               <div class="teamTop">
                 <div class="teamNameInput">${escapeHtml(p.name)}</div>
